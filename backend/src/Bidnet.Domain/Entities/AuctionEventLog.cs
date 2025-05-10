@@ -1,0 +1,32 @@
+using Bidnet.Domain.Enums;
+using Ardalis.GuardClauses;
+
+namespace Bidnet.Domain.Entities;
+
+public readonly record struct AuctionEventId(Guid Value)
+{
+    public static implicit operator Guid(AuctionEventId id) => id.Value;
+    public static implicit operator AuctionEventId(Guid id) => new(id);
+}
+
+public class AuctionEventLog
+{
+    public AuctionEventId Id { get; set; }
+    public AuctionId AuctionId { get; private set; }
+    public AuctionEventType EventType { get; private set; }
+    public string Details { get; private set; } = null!;
+    public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+
+    private AuctionEventLog() { }
+
+    public AuctionEventLog(AuctionId auctionId, AuctionEventType eventType, string details)
+    {
+        Guard.Against.Default(auctionId.Value, nameof(auctionId));
+        Guard.Against.NullOrEmpty(details, nameof(details));
+
+        Id = Guid.NewGuid();
+        AuctionId = auctionId;
+        EventType = eventType;
+        Details = details;
+    }
+}
