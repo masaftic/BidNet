@@ -10,7 +10,7 @@ public readonly record struct BidId(Guid Value)
 
 public class Bid
 {
-    public BidId Id { get; set; }
+    public BidId Id { get; init; }
     public AuctionId AuctionId { get; private set; }
     public UserId UserId { get; private set; }
     public decimal Amount { get; private set; }

@@ -3,15 +3,15 @@ using Ardalis.GuardClauses;
 
 namespace Bidnet.Domain.Entities;
 
-public readonly record struct AuctionEventId(Guid Value)
+public readonly record struct AuctionEventLogId(Guid Value)
 {
-    public static implicit operator Guid(AuctionEventId id) => id.Value;
-    public static implicit operator AuctionEventId(Guid id) => new(id);
+    public static implicit operator Guid(AuctionEventLogId id) => id.Value;
+    public static implicit operator AuctionEventLogId(Guid id) => new(id);
 }
 
 public class AuctionEventLog
 {
-    public AuctionEventId Id { get; set; }
+    public AuctionEventLogId Id { get; init; }
     public AuctionId AuctionId { get; private set; }
     public AuctionEventType EventType { get; private set; }
     public string Details { get; private set; } = null!;

@@ -11,7 +11,7 @@ public readonly record struct AuctionId(Guid Value)
 
 public class Auction
 {
-    public AuctionId Id { get; set; }
+    public AuctionId Id { get; init; }
     public string Title { get; private set; } = null!;
     public string Description { get; private set; } = null!;
     public DateTime StartDate { get; private set; }

@@ -11,26 +11,26 @@ public readonly record struct UserId(Guid Value)
 
 public class User
 {
-    public UserId Id { get; set; }
+    public UserId Id { get; init; }
     public string Username { get; private set; } = null!;
     public string Email { get; private set; } = null!;
+    public string PasswordHash { get; private set; } = null!;
     public UserRole Role { get; private set; } = UserRole.Bidder;
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
 
     private User() { }
 
-    public User(string username, string email, UserRole role)
+    public User(string username, string email, string passwordHash, UserRole role)
     {
         Guard.Against.NullOrEmpty(username, nameof(username));
         Guard.Against.NullOrEmpty(email, nameof(email));
+        Guard.Against.NullOrEmpty(passwordHash, nameof(passwordHash));
         Guard.Against.InvalidInput(email, nameof(email), e => e.Contains('@'), "Invalid email format");
 
+        Id = Guid.NewGuid();
         Username = username;
         Email = email;
+        PasswordHash = passwordHash;
         Role = role;
-    }
-
-    public User(string username, string email) : this(username, email, UserRole.Bidder)
-    {
     }
 }

@@ -2,7 +2,7 @@ name: BidNet
 
 services:
   bidnet-db:
-    image: mssql/server:2022-latest
+    image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=YourStrong@Passw0rd
