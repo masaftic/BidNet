@@ -1,7 +1,7 @@
 using ErrorOr;
 using MediatR;
 
-namespace BidNet.Features.Common.Behaviors;
+namespace BidNet.Shared.Behaviors;
 
 public sealed class RequestLoggingPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
