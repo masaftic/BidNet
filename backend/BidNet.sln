@@ -5,13 +5,11 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E141491A-9FF1-4AE3-834B-6D3B1098C304}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bidnet.Domain", "src\Bidnet.Domain\Bidnet.Domain.csproj", "{BA1ABDCC-7A62-48BC-BA4E-670612AB8362}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BidNet", "src\BidNet\BidNet.csproj", "{28856B28-B223-4C35-96BA-54958007FBC6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bidnet.Application", "src\Bidnet.Application\Bidnet.Application.csproj", "{A0BB72C5-116D-4E74-91E6-35D6246ED36F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{6E18AC41-2293-4FAE-BED7-C7C6E9321EE7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bidnet.Infrastructure", "src\Bidnet.Infrastructure\Bidnet.Infrastructure.csproj", "{1A55889C-5533-45ED-A420-EA13647424C8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bidnet.Api", "src\Bidnet.Api\Bidnet.Api.csproj", "{28856B28-B223-4C35-96BA-54958007FBC6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bidnet.Api.Tests", "tests\Bidnet.Api.Tests\Bidnet.Api.Tests.csproj", "{52613AE8-79C3-41A4-BA28-772F5E58B152}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,30 +17,20 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BA1ABDCC-7A62-48BC-BA4E-670612AB8362}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BA1ABDCC-7A62-48BC-BA4E-670612AB8362}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BA1ABDCC-7A62-48BC-BA4E-670612AB8362}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BA1ABDCC-7A62-48BC-BA4E-670612AB8362}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A0BB72C5-116D-4E74-91E6-35D6246ED36F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A0BB72C5-116D-4E74-91E6-35D6246ED36F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A0BB72C5-116D-4E74-91E6-35D6246ED36F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A0BB72C5-116D-4E74-91E6-35D6246ED36F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1A55889C-5533-45ED-A420-EA13647424C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1A55889C-5533-45ED-A420-EA13647424C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1A55889C-5533-45ED-A420-EA13647424C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1A55889C-5533-45ED-A420-EA13647424C8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{28856B28-B223-4C35-96BA-54958007FBC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{28856B28-B223-4C35-96BA-54958007FBC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28856B28-B223-4C35-96BA-54958007FBC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28856B28-B223-4C35-96BA-54958007FBC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52613AE8-79C3-41A4-BA28-772F5E58B152}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52613AE8-79C3-41A4-BA28-772F5E58B152}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52613AE8-79C3-41A4-BA28-772F5E58B152}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52613AE8-79C3-41A4-BA28-772F5E58B152}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{BA1ABDCC-7A62-48BC-BA4E-670612AB8362} = {E141491A-9FF1-4AE3-834B-6D3B1098C304}
-		{A0BB72C5-116D-4E74-91E6-35D6246ED36F} = {E141491A-9FF1-4AE3-834B-6D3B1098C304}
-		{1A55889C-5533-45ED-A420-EA13647424C8} = {E141491A-9FF1-4AE3-834B-6D3B1098C304}
 		{28856B28-B223-4C35-96BA-54958007FBC6} = {E141491A-9FF1-4AE3-834B-6D3B1098C304}
+		{52613AE8-79C3-41A4-BA28-772F5E58B152} = {6E18AC41-2293-4FAE-BED7-C7C6E9321EE7}
 	EndGlobalSection
 EndGlobal
