@@ -13,7 +13,9 @@ public class PaymentTransaction
 {
     public PaymentTransactionId Id { get; init; }
     public AuctionId AuctionId { get; private set; }
+    public Auction Auction { get; private set; } = null!;
     public UserId UserId { get; private set; }
+    public User User { get; private set; } = null!;
     public decimal Amount { get; private set; }
     public PaymentStatus Status { get; private set; } = PaymentStatus.Pending;
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;

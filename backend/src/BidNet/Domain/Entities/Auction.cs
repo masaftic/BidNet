@@ -19,8 +19,10 @@ public class Auction
     public decimal StartingPrice { get; private set; }
     public decimal? CurrentPrice { get; private set; }
     public UserId CreatedBy { get; private set; }
+    public User User { get; private set; } = null!;
     public AuctionStatus Status { get; private set; } = AuctionStatus.Scheduled;
     public UserId? WinnerId { get; private set; }
+    public User? Winner { get; private set; }
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
 
     private Auction() { }

@@ -13,6 +13,7 @@ public class AuctionEventLog
 {
     public AuctionEventLogId Id { get; init; }
     public AuctionId AuctionId { get; private set; }
+    public Auction Auction { get; private set; } = null!;
     public AuctionEventType EventType { get; private set; }
     public string Details { get; private set; } = null!;
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
