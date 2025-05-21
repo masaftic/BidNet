@@ -1,5 +1,3 @@
-using System;
-
 namespace BidNet.Features.Auctions.Models;
 
 public record AuctionResponse(

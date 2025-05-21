@@ -50,7 +50,6 @@ public class ApiController : ControllerBase
             ErrorType.NotFound => StatusCodes.Status404NotFound,
             ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
             ErrorType.Forbidden => StatusCodes.Status403Forbidden,
-            ErrorType.Unexpected => StatusCodes.Status500InternalServerError,
             _ => StatusCodes.Status500InternalServerError
         };
     }

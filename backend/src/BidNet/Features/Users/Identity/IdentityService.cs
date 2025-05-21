@@ -3,9 +3,9 @@ using BidNet.Domain.Entities;
 using BidNet.Domain.Enums;
 using BidNet.Features.Common.Abstractions;
 using BidNet.Features.Common.Models;
+using BidNet.Features.Users.Abstractions;
 using ErrorOr;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 using BC = BCrypt.Net.BCrypt;
 
 namespace BidNet.Features.Users.Identity;

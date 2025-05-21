@@ -1,6 +1,6 @@
 using BidNet.Domain.Entities;
 using BidNet.Domain.Enums;
-using BidNet.Features.Common.Abstractions;
+using BidNet.Features.Users.Abstractions;
 using ErrorOr;
 using FluentValidation;
 using MediatR;

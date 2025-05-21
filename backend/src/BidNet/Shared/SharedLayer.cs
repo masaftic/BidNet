@@ -1,9 +1,4 @@
-using AutoMapper;
-using BidNet.Features.Common.Abstractions;
-using ErrorOr;
 using FluentValidation;
-using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace BidNet.Shared;
 

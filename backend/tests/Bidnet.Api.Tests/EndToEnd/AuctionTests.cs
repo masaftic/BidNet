@@ -1,10 +1,7 @@
-using System;
 using System.Net;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
-using BidNet.Models;
+using BidNet.Features.Auctions.Models;
 using FluentAssertions;
-using Xunit;
 
 namespace Bidnet.Api.Tests.EndToEnd;
 
@@ -22,13 +19,13 @@ public class AuctionTests : IClassFixture<CustomWebApplicationFactory>
     {
         // Arrange
         var request = new CreateAuctionRequest
-        {
-            Title = "Test Auction",
-            Description = "Test Description",
-            StartDate = DateTime.UtcNow.AddDays(1),
-            EndDate = DateTime.UtcNow.AddDays(10),
-            StartingPrice = 100.0m
-        };
+        (
+            Title: "Test Auction",
+            Description: "Test Description",
+            StartDate: DateTime.UtcNow.AddDays(1),
+            EndDate: DateTime.UtcNow.AddDays(10),
+            StartingPrice: 100.0m
+        );
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/auctions", request);
@@ -55,7 +52,7 @@ public class AuctionTests : IClassFixture<CustomWebApplicationFactory>
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var auction = await response.Content.ReadFromJsonAsync<AuctionResponse>();
         auction.Should().NotBeNull();
-        auction!.Id.Should().Be(auctionId);
+        auction.Id.Should().Be(auctionId);
     }
 
     [Fact]
@@ -64,13 +61,13 @@ public class AuctionTests : IClassFixture<CustomWebApplicationFactory>
         // Arrange
         var auctionId = await SeedAuctionAsync(); // Ensure a valid auction ID is used
         var request = new UpdateAuctionRequest
-        {
-            Title = "Updated Title",
-            Description = "Updated Description",
-            StartDate = DateTime.UtcNow.AddDays(2),
-            EndDate = DateTime.UtcNow.AddDays(12),
-            StartingPrice = 200.0m
-        };
+        (
+            Title: "Updated Title",
+            Description: "Updated Description",
+            StartDate: DateTime.UtcNow.AddDays(2),
+            EndDate: DateTime.UtcNow.AddDays(12),
+            StartingPrice: 200.0m
+        );
 
         // Act
         var response = await _client.PutAsJsonAsync($"/api/auctions/{auctionId}", request);
@@ -79,7 +76,7 @@ public class AuctionTests : IClassFixture<CustomWebApplicationFactory>
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var auction = await response.Content.ReadFromJsonAsync<AuctionResponse>();
         auction.Should().NotBeNull();
-        auction!.Title.Should().Be(request.Title);
+        auction.Title.Should().Be(request.Title);
         auction.Description.Should().Be(request.Description);
         auction.StartingPrice.Should().Be(request.StartingPrice);
     }
@@ -107,19 +104,19 @@ public class AuctionTests : IClassFixture<CustomWebApplicationFactory>
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var auctions = await response.Content.ReadFromJsonAsync<AuctionResponse[]>();
         auctions.Should().NotBeNull();
-        auctions!.Should().NotBeEmpty();
+        auctions.Should().NotBeEmpty();
     }
 
     private async Task<Guid> SeedAuctionAsync()
     {
         var request = new CreateAuctionRequest
-        {
-            Title = "Seeded Auction",
-            Description = "Seeded Description",
-            StartDate = DateTime.UtcNow.AddDays(1),
-            EndDate = DateTime.UtcNow.AddDays(10),
-            StartingPrice = 100.0m
-        };
+        (
+            Title: "Seeded Auction",
+            Description: "Seeded Description",
+            StartDate: DateTime.UtcNow.AddDays(1),
+            EndDate: DateTime.UtcNow.AddDays(10),
+            StartingPrice: 100.0m
+        );
 
         var response = await _client.PostAsJsonAsync("/api/auctions", request);
         response.EnsureSuccessStatusCode();

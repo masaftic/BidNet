@@ -1,7 +1,6 @@
 using AutoMapper;
 using BidNet.Features.Users.Commands;
 using BidNet.Features.Users.Models;
-using BidNet.Features.Users.Queries;
 using BidNet.Shared.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

@@ -1,9 +1,6 @@
 using BidNet;
 using BidNet.Data.Persistence;
-using BidNet.Features.Common.Behaviors;
 using ErrorOr;
-using FluentValidation;
-using System.Reflection;
 using System.Text.Json.Serialization;
 using BidNet.Shared;
 
@@ -12,18 +9,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails(o =>
 {
-    o.CustomizeProblemDetails = (context) =>
+    o.CustomizeProblemDetails = context =>
     {
-        o.CustomizeProblemDetails = context =>
-        {
-            context.ProblemDetails.Instance =
-                $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
+        context.ProblemDetails.Instance =
+            $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
 
-            if (context.HttpContext.Items["errors"] is List<Error> errors)
-            {
-                context.ProblemDetails.Extensions.TryAdd("errorsCodes", errors.Select(e => e.Code).ToArray());
-            }
-        };
+        if (context.HttpContext.Items["errors"] is List<Error> errors)
+        {
+            context.ProblemDetails.Extensions.TryAdd("errorsCodes", errors.Select(e => e.Code).ToArray());
+        }
     };
 });
 
@@ -68,4 +62,6 @@ app.MapControllers();
 app.Run();
 
 
-public partial class Program { }
+public partial class Program
+{
+}

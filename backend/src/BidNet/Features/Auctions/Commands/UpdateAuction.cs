@@ -26,25 +26,7 @@ public class UpdateAuctionCommandValidator : AbstractValidator<UpdateAuctionComm
     }
 }
 
-public class UpdateAuctionCommand : IRequest<ErrorOr<Auction>>
-{
-    public Guid Id { get; }
-    public string Title { get; }
-    public string Description { get; }
-    public DateTime StartDate { get; }
-    public DateTime EndDate { get; }
-    public decimal StartingPrice { get; }
-
-    public UpdateAuctionCommand(Guid id, string title, string description, DateTime startDate, DateTime endDate, decimal startingPrice)
-    {
-        Id = id;
-        Title = title;
-        Description = description;
-        StartDate = startDate;
-        EndDate = endDate;
-        StartingPrice = startingPrice;
-    }
-}
+public record UpdateAuctionCommand(Guid Id, string Title, string Description, DateTime StartDate, DateTime EndDate, decimal StartingPrice) : IRequest<ErrorOr<Auction>>;
 
 public class UpdateAuctionCommandHandler : IRequestHandler<UpdateAuctionCommand, ErrorOr<Auction>>
 {

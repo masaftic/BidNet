@@ -1,5 +1,5 @@
-using BidNet.Features.Common.Abstractions;
 using BidNet.Features.Common.Models;
+using BidNet.Features.Users.Abstractions;
 using ErrorOr;
 using FluentValidation;
 using MediatR;

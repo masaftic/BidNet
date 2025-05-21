@@ -3,7 +3,7 @@ using BidNet.Domain.Enums;
 using BidNet.Features.Common.Models;
 using ErrorOr;
 
-namespace BidNet.Features.Common.Abstractions;
+namespace BidNet.Features.Users.Abstractions;
 
 public interface IIdentityService
 {

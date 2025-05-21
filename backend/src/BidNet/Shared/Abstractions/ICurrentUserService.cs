@@ -1,6 +1,6 @@
 using BidNet.Domain.Entities;
 
-namespace BidNet.Features.Common.Abstractions;
+namespace BidNet.Shared.Abstractions;
 
 public interface ICurrentUserService
 {
