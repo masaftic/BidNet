@@ -1,13 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using BidNet.Features.Users.Authentication;
-using BidNet.Features.Common.Abstractions;
 using BidNet.Features.Users.Identity;
 using BidNet.Data.Persistence;
 using BidNet.Features.Users.Abstractions;
 using BidNet.Shared.Abstractions;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using BidNet.Features.Auth.Models;
+using BidNet.Features.Auth.Abstractions;
 
 namespace BidNet;
 
