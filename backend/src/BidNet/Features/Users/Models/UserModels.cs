@@ -2,31 +2,28 @@ using BidNet.Domain.Enums;
 
 namespace BidNet.Features.Users.Models;
 
-public record UserResponse(
-    Guid Id,
-    string Username,
-    string Email,
-    UserRole Role,
-    decimal Balance);
+public class UserProfileResponse
+{
+    public Guid Id { get; set; }
+    public string Username { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public UserRole Role { get; set; }
+    public decimal Balance { get; set; }
+}
 
-public record RegisterRequest(
-    string Username,
-    string Email,
-    string Password,
-    UserRole Role = UserRole.Bidder);
+public class UpdateProfileRequest
+{
+    public string Username { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string? CurrentPassword { get; set; }
+    public string? NewPassword { get; set; }
+}
 
-public record LoginRequest(
-    string Email,
-    string Password);
-
-public record LoginResponse(
-    string Token,
-    string RefreshToken,
-    UserResponse User);
-
-public record RefreshTokenRequest(
-    string RefreshToken);
-    
-public record RefreshTokenResponse(
-    string Token,
-    string RefreshToken);
+public class UserSummaryResponse
+{
+    public Guid Id { get; set; }
+    public string Username { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public UserRole Role { get; set; }
+    public DateTime CreatedAt { get; set; }
+}

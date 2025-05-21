@@ -4,11 +4,11 @@ using System.Security.Cryptography;
 using System.Text;
 using BidNet.Domain.Entities;
 using BidNet.Domain.Enums;
-using BidNet.Features.Common.Abstractions;
+using BidNet.Features.Auth.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace BidNet.Features.Users.Authentication;
+namespace BidNet.Features.Auth.Abstractions;
 
 public class TokenService : ITokenService
 {

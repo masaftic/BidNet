@@ -1,4 +1,4 @@
-namespace BidNet.Features.Common.Models;
+namespace BidNet.Features.Auth.Models;
 
 public record AuthenticationResult
 {

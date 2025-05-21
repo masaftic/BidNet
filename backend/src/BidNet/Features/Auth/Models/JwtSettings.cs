@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace BidNet.Features.Users.Authentication;
+namespace BidNet.Features.Auth.Models;
 
 public class JwtSettings
 {

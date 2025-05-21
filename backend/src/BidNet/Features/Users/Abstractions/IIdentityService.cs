@@ -1,6 +1,6 @@
 using BidNet.Domain.Entities;
 using BidNet.Domain.Enums;
-using BidNet.Features.Common.Models;
+using BidNet.Features.Auth.Models;
 using ErrorOr;
 
 namespace BidNet.Features.Users.Abstractions;

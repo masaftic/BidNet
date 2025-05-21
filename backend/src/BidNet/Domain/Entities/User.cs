@@ -33,4 +33,20 @@ public class User
         PasswordHash = passwordHash;
         Role = role;
     }
+
+    public void UpdatePassword(string newPasswordHash)
+    {
+        Guard.Against.NullOrEmpty(newPasswordHash, nameof(newPasswordHash));
+        PasswordHash = newPasswordHash;
+    }
+
+    public void UpdateProfile(string username, string email)
+    {
+        Guard.Against.NullOrEmpty(username, nameof(username));
+        Guard.Against.NullOrEmpty(email, nameof(email));
+        Guard.Against.InvalidInput(email, nameof(email), e => e.Contains('@'), "Invalid email format");
+
+        Username = username;
+        Email = email;
+    }
 }

@@ -2,7 +2,7 @@ using BidNet.Domain.Entities;
 using BidNet.Domain.Enums;
 using System.Security.Claims;
 
-namespace BidNet.Features.Common.Abstractions;
+namespace BidNet.Features.Auth.Abstractions;
 
 public interface ITokenService
 {

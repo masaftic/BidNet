@@ -1,6 +1,9 @@
 using AutoMapper;
+using BidNet.Features.Auth.Models;
 using BidNet.Features.Users.Commands;
 using BidNet.Features.Users.Models;
+using BidNet.Features.Users.Queries;
+using BidNet.Shared.Abstractions;
 using BidNet.Shared.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -13,43 +16,75 @@ public class UsersController : ApiController
 {
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
+    private readonly ICurrentUserService _currentUserService;
 
-    public UsersController(IMediator mediator, IMapper mapper)
+    public UsersController(
+        IMediator mediator, 
+        IMapper mapper,
+        ICurrentUserService currentUserService)
     {
         _mediator = mediator;
         _mapper = mapper;
+        _currentUserService = currentUserService;
     }
 
-    [HttpPost("register")]
-    [AllowAnonymous]
-    public async Task<IActionResult> Register(RegisterRequest request)
+    [HttpGet("me/profile")]
+    [Authorize]
+    public async Task<IActionResult> GetMyProfile()
     {
-        var command = new RegisterCommand(request.Username, request.Email, request.Password, request.Role);
+        var query = new GetMyProfileQuery();
+        var result = await _mediator.Send(query);
+        return result.Match(
+            profile => Ok(_mapper.Map<UserProfileResponse>(profile)),
+            HandleErrors);
+    }
+
+    [HttpPut("me/profile")]
+    [Authorize]
+    public async Task<IActionResult> UpdateMyProfile(UpdateProfileRequest request)
+    {
+        var command = new UpdateMyProfileCommand(
+            request.Username,
+            request.Email,
+            request.CurrentPassword,
+            request.CurrentPassword);
+            
         var result = await _mediator.Send(command);
+        return result.Match(
+            profile => Ok(_mapper.Map<UserProfileResponse>(profile)),
+            HandleErrors);
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ListUsers()
+    {
+        var query = new ListUsersQuery();
+        var result = await _mediator.Send(query);
+        return result.Match(
+            users => Ok(_mapper.Map<List<UserResponse>>(users)),
+            HandleErrors);
+    }
+
+    [HttpGet("{userId}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetUserById(Guid userId)
+    {
+        var query = new GetUserByIdQuery(userId);
+        var result = await _mediator.Send(query);
         return result.Match(
             user => Ok(_mapper.Map<UserResponse>(user)),
             HandleErrors);
     }
 
-    [HttpPost("login")]
-    [AllowAnonymous]
-    public async Task<IActionResult> Login(LoginRequest request)
+    [HttpDelete("{userId}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteUser(Guid userId)
     {
-        var command = new LoginCommand(request.Email, request.Password);
+        var command = new DeleteUserCommand(userId);
         var result = await _mediator.Send(command);
         return result.Match(
-            Ok,
-            HandleErrors);
-    }
-
-    [HttpPost("refresh-token")]
-    [AllowAnonymous]
-    public async Task<IActionResult> RefreshToken(RefreshTokenRequest request)
-    {
-        var command = new RefreshTokenCommand(request.RefreshToken);
-        var result = await _mediator.Send(command);
-        return result.Match(
-            Ok,
+            _ => NoContent(),
             HandleErrors);
     }
 }

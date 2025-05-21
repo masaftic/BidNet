@@ -5,7 +5,7 @@ using ErrorOr;
 using FluentValidation;
 using MediatR;
 
-namespace BidNet.Features.Users.Commands;
+namespace BidNet.Features.Auth.Commands;
 
 public class RefreshTokenCommandValidator : AbstractValidator<RefreshTokenCommand>
 {
@@ -21,16 +21,16 @@ public record RefreshTokenCommand(string RefreshToken) : IRequest<ErrorOr<Authen
 public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, ErrorOr<AuthenticationResult>>
 {
     private readonly IIdentityService _identityService;
-    private readonly ICurrentUserService _userService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public RefreshTokenCommandHandler(IIdentityService identityService, ICurrentUserService userService)
+    public RefreshTokenCommandHandler(IIdentityService identityService, ICurrentUserService currentUserService)
     {
         _identityService = identityService;
-        _userService = userService;
+        _currentUserService = currentUserService;
     }
 
     public async Task<ErrorOr<AuthenticationResult>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
-        return await _identityService.RefreshTokenAsync(_userService.UserId, request.RefreshToken);
+        return await _identityService.RefreshTokenAsync(_currentUserService.UserId, request.RefreshToken);
     }
 }
