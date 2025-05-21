@@ -20,12 +20,12 @@ public class AuctionConfiguration : IEntityTypeConfiguration<Auction>
             .HasMaxLength(2000)
             .IsRequired();
 
-        builder.HasOne<User>()
+        builder.HasOne(x => x.CreatedByUser)
             .WithMany()
             .HasForeignKey(x => x.CreatedBy)
             .OnDelete(DeleteBehavior.Restrict);
         
-        builder.HasOne<User>()
+        builder.HasOne(x => x.Winner)
             .WithMany()
             .HasForeignKey(x => x.WinnerId)
             .OnDelete(DeleteBehavior.Restrict);

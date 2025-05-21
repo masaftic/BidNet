@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BidNet.Data.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250520152756_Init_Migration")]
+    [Migration("20250521132014_Init_Migration")]
     partial class Init_Migration
     {
         /// <inheritdoc />
@@ -25,7 +25,7 @@ namespace BidNet.Data.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Bidnet.Domain.Entities.Auction", b =>
+            modelBuilder.Entity("BidNet.Domain.Entities.Auction", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -76,7 +76,7 @@ namespace BidNet.Data.Persistence.Migrations
                     b.ToTable("Auctions");
                 });
 
-            modelBuilder.Entity("Bidnet.Domain.Entities.AuctionEventLog", b =>
+            modelBuilder.Entity("BidNet.Domain.Entities.AuctionEventLog", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -97,10 +97,12 @@ namespace BidNet.Data.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AuctionId");
+
                     b.ToTable("AuctionEventLog");
                 });
 
-            modelBuilder.Entity("Bidnet.Domain.Entities.Bid", b =>
+            modelBuilder.Entity("BidNet.Domain.Entities.Bid", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -130,7 +132,7 @@ namespace BidNet.Data.Persistence.Migrations
                     b.ToTable("Bids");
                 });
 
-            modelBuilder.Entity("Bidnet.Domain.Entities.PaymentTransaction", b =>
+            modelBuilder.Entity("BidNet.Domain.Entities.PaymentTransaction", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -153,10 +155,14 @@ namespace BidNet.Data.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AuctionId");
+
+                    b.HasIndex("UserId");
+
                     b.ToTable("PaymentTransaction");
                 });
 
-            modelBuilder.Entity("Bidnet.Domain.Entities.RefreshToken", b =>
+            modelBuilder.Entity("BidNet.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -177,10 +183,12 @@ namespace BidNet.Data.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("Bidnet.Domain.Entities.User", b =>
+            modelBuilder.Entity("BidNet.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -217,33 +225,82 @@ namespace BidNet.Data.Persistence.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Bidnet.Domain.Entities.Auction", b =>
+            modelBuilder.Entity("BidNet.Domain.Entities.Auction", b =>
                 {
-                    b.HasOne("Bidnet.Domain.Entities.User", null)
+                    b.HasOne("BidNet.Domain.Entities.User", "CreatedByUser")
                         .WithMany()
                         .HasForeignKey("CreatedBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Bidnet.Domain.Entities.User", null)
+                    b.HasOne("BidNet.Domain.Entities.User", "Winner")
                         .WithMany()
                         .HasForeignKey("WinnerId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("Winner");
                 });
 
-            modelBuilder.Entity("Bidnet.Domain.Entities.Bid", b =>
+            modelBuilder.Entity("BidNet.Domain.Entities.AuctionEventLog", b =>
                 {
-                    b.HasOne("Bidnet.Domain.Entities.Auction", null)
+                    b.HasOne("BidNet.Domain.Entities.Auction", "Auction")
                         .WithMany()
                         .HasForeignKey("AuctionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Bidnet.Domain.Entities.User", null)
+                    b.Navigation("Auction");
+                });
+
+            modelBuilder.Entity("BidNet.Domain.Entities.Bid", b =>
+                {
+                    b.HasOne("BidNet.Domain.Entities.Auction", "Auction")
+                        .WithMany()
+                        .HasForeignKey("AuctionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BidNet.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Auction");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BidNet.Domain.Entities.PaymentTransaction", b =>
+                {
+                    b.HasOne("BidNet.Domain.Entities.Auction", "Auction")
+                        .WithMany()
+                        .HasForeignKey("AuctionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BidNet.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Auction");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BidNet.Domain.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("BidNet.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

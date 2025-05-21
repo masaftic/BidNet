@@ -12,15 +12,18 @@ public class BidConfiguration : IEntityTypeConfiguration<Bid>
         builder.Property(x => x.Id)
             .HasConversion(x => x.Value, x => new BidId(x));
 
+        builder.Property(x => x.AuctionId)
+            .HasConversion(x => x.Value, x => new AuctionId(x));
+
         builder.Property(x => x.Amount)
             .HasPrecision(18, 2);
         
-        builder.HasOne<Auction>()
+        builder.HasOne(x => x.Auction)
             .WithMany()
             .HasForeignKey(x => x.AuctionId)
             .OnDelete(DeleteBehavior.Cascade);
         
-        builder.HasOne<User>()
+        builder.HasOne(x => x.User)
             .WithMany()
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
