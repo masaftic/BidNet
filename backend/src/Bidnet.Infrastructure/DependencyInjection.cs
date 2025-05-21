@@ -21,6 +21,8 @@ public static class DependencyInjection
 
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddHttpContextAccessor();
 
         services.AddPersistence(configuration);
         services.AddAuthentication(options =>

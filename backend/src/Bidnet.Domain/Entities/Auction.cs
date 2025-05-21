@@ -51,4 +51,24 @@ public class Auction
         StartingPrice = startingPrice;
         CreatedBy = createdBy;
     }
+
+    public void UpdateDetails(string title, string description, DateTime startDate, DateTime endDate, decimal startingPrice)
+    {
+        Guard.Against.NullOrEmpty(title, nameof(title));
+        Guard.Against.NullOrEmpty(description, nameof(description));
+        Guard.Against.OutOfSQLDateRange(startDate, nameof(startDate));
+        Guard.Against.OutOfSQLDateRange(endDate, nameof(endDate));
+        Guard.Against.NegativeOrZero(startingPrice, nameof(startingPrice));
+
+        if (endDate <= startDate)
+        {
+            throw new ArgumentException("End date must be after start date.", nameof(endDate));
+        }
+
+        Title = title;
+        Description = description;
+        StartDate = startDate;
+        EndDate = endDate;
+        StartingPrice = startingPrice;
+    }
 }
