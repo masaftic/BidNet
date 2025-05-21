@@ -5,6 +5,7 @@ using ErrorOr;
 using FluentValidation;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using BidNet.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,14 +33,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
-builder.Services.AddMediatR(cfg =>
-{
-    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-    cfg.AddOpenBehavior(typeof(RequestLoggingPipelineBehavior<,>));
-    cfg.AddOpenBehavior(typeof(ValidationPipelineBehavior<,>));
-});
-
-builder.Services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
+builder.Services.AddSharedServices();
 
 var app = builder.Build();
 

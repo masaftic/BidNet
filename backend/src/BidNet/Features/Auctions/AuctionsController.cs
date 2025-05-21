@@ -2,11 +2,12 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
-using BidNet.Models;
 using BidNet.Features.Auctions.Commands;
 using BidNet.Features.Auctions.Queries;
+using BidNet.Features.Auctions.Models;
+using BidNet.Shared.Controllers;
 
-namespace BidNet.Controllers;
+namespace BidNet.Features.Auctions;
 
 [Route("api/[controller]")]
 public class AuctionsController : ApiController

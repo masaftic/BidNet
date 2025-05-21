@@ -1,14 +1,13 @@
 using AutoMapper;
-using BidNet.Domain.Entities;
-using BidNet.Domain.Enums;
 using BidNet.Features.Users.Commands;
+using BidNet.Features.Users.Models;
 using BidNet.Features.Users.Queries;
-using BidNet.Models;
+using BidNet.Shared.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BidNet.Controllers;
+namespace BidNet.Features.Users;
 
 [Route("api/[controller]")]
 public class UsersController : ApiController
@@ -26,22 +25,10 @@ public class UsersController : ApiController
     [AllowAnonymous]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        if (request.Role == UserRole.Admin)
-        {
-            return BadRequest("Admin role is not allowed for registration.");
-        }
-        
         var command = new RegisterCommand(request.Username, request.Email, request.Password, request.Role);
-
         var result = await _mediator.Send(command);
         return result.Match(
-            user => Ok(new UserResponse
-            {
-                Id = user.Id.Value,
-                Username = user.Username,
-                Email = user.Email,
-                Role = user.Role.ToString()
-            }),
+            user => Ok(_mapper.Map<UserResponse>(user)),
             HandleErrors);
     }
 
@@ -52,16 +39,8 @@ public class UsersController : ApiController
         var command = new LoginCommand(request.Email, request.Password);
         var result = await _mediator.Send(command);
         return result.Match(
-            authResult => Ok(_mapper.Map<AuthenticationResponse>(authResult)),
+            Ok,
             HandleErrors);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetUserById(Guid id)
-    {
-        var query = new GetUserByIdQuery(new UserId(id));
-        var result = await _mediator.Send(query);
-        return result.Match(Ok, HandleErrors);
     }
 
     [HttpPost("refresh-token")]
@@ -71,7 +50,7 @@ public class UsersController : ApiController
         var command = new RefreshTokenCommand(request.RefreshToken);
         var result = await _mediator.Send(command);
         return result.Match(
-            authResult => Ok(_mapper.Map<AuthenticationResponse>(authResult)),
+            Ok,
             HandleErrors);
     }
 }

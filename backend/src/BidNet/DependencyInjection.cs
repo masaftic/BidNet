@@ -6,6 +6,7 @@ using BidNet.Features.Users.Identity;
 using BidNet.Data.Persistence;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Reflection;
 
 namespace BidNet;
 

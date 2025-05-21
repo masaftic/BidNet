@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace BidNet.Controllers;
+namespace BidNet.Shared.Controllers;
 
 [ApiController]
 [Authorize]
