@@ -1,0 +1,27 @@
+### Register
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "newUser2",
+  "email": "newUser2@example.com",
+  "password": "password123",
+  "role": "Bidder"
+}
+
+### Login
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "newUser2@example.com",
+  "password": "password123"
+}
+
+### Refresh Token
+POST http://localhost:5000/api/auth/refresh-token
+Content-Type: application/json
+
+{
+  "refreshToken": "<refreshToken>"
+}

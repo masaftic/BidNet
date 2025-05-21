@@ -1,0 +1,37 @@
+### Create Auction
+POST http://localhost:5000/api/auctions
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Auction Title",
+  "description": "Auction Description",
+  "startDate": "2025-05-22T00:00:00Z",
+  "endDate": "2025-05-29T00:00:00Z",
+  "startingPrice": 100.00
+}
+
+### Update Auction
+PUT http://localhost:5000/api/auctions/<auctionId>
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Updated Title",
+  "description": "Updated Description",
+  "startDate": "2025-05-23T00:00:00Z",
+  "endDate": "2025-05-30T00:00:00Z",
+  "startingPrice": 150.00
+}
+
+### Delete Auction
+DELETE http://localhost:5000/api/auctions/<auctionId>
+Authorization: Bearer {{token}}
+
+### Get Auctions List
+GET http://localhost:5000/api/auctions
+Authorization: Bearer {{token}}
+
+### Get Auction By ID
+GET http://localhost:5000/api/auctions/<auctionId>
+Authorization: Bearer {{token}}

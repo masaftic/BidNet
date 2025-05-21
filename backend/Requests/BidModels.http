@@ -1,0 +1,17 @@
+### Place Bid
+POST http://localhost:5000/api/bids
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "auctionId": "df7ce413-6835-4734-97ea-42575a79bc0b",
+  "amount": 100.00
+}
+
+### Get Auction Bids
+GET http://localhost:5000/api/bids/auction/<auctionId>
+Authorization: Bearer {{token}}
+
+### Get User Bids
+GET http://localhost:5000/api/bids/user/<userId>
+Authorization: Bearer {{token}}

@@ -1,0 +1,31 @@
+### Get My Profile
+GET http://localhost:5000/api/users/me/profile
+Authorization: Bearer {{token}}
+
+### Update My Profile
+PUT http://localhost:5000/api/users/me/profile
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "username": "newUsername",
+  "email": "newEmail@example.com",
+  "currentPassword": "currentPassword",
+  "newPassword": "newPassword"
+}
+
+### List Users
+GET http://localhost:5000/api/users
+Authorization: Bearer {{token}}
+
+###
+
+@userId = 12345
+
+### Get User By ID
+GET http://localhost:5000/api/users/{{userId}}
+Authorization: Bearer {{token}}
+
+### Delete User
+DELETE http://localhost:5000/api/users/{{userId}}
+Authorization: Bearer {{token}}
