@@ -1,5 +1,6 @@
 using Ardalis.GuardClauses;
 using BidNet.Domain.Enums;
+using ErrorOr;
 
 namespace BidNet.Domain.Entities;
 
@@ -18,11 +19,18 @@ public class Auction
     public DateTime EndDate { get; private set; }
     public decimal StartingPrice { get; private set; }
     public decimal? CurrentPrice { get; private set; }
+
     public UserId CreatedBy { get; private set; }
     public User CreatedByUser { get; private set; } = null!;
+
     public AuctionStatus Status { get; private set; } = AuctionStatus.Scheduled;
+
     public UserId? WinnerId { get; private set; }
     public User? Winner { get; private set; }
+
+    private List<Bid> _bids { get; set; } = [];
+    public IReadOnlyList<Bid> Bids => _bids.AsReadOnly();
+
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
 
     private Auction() { }
@@ -73,7 +81,7 @@ public class Auction
         EndDate = endDate;
         StartingPrice = startingPrice;
     }
-    
+
     public void UpdateCurrentPrice(decimal? currentPrice)
     {
         if (currentPrice is <= 0)
@@ -82,5 +90,55 @@ public class Auction
         }
 
         CurrentPrice = currentPrice;
+    }
+
+    // Start the auction
+    public void Start()
+    {
+        if (Status != AuctionStatus.Scheduled)
+        {
+            throw new InvalidOperationException("Auction can only be started from the scheduled state.");
+        }
+
+        Status = AuctionStatus.Live;
+    }
+
+    public ErrorOr<Success> PlaceBid(Bid bid)
+    {
+        if (Status != AuctionStatus.Live)
+        {
+            return Error.Validation(description: "Auction is not live");
+        }
+
+        // Check if amount is higher than current price
+        if (CurrentPrice.HasValue && bid.Amount <= CurrentPrice.Value)
+        {
+            return Error.Validation(description: "Bid amount must be higher than current price");
+        }
+
+        // Check if amount is higher than starting price
+        if (!CurrentPrice.HasValue && bid.Amount <= StartingPrice)
+        {
+            return Error.Validation(description: "Bid amount must be higher than starting price");
+        }
+
+        var winningBid = _bids
+            .Where(b => b.AuctionId == Id && b.IsWinning)
+            .OrderByDescending(b => b.Amount)
+            .FirstOrDefault();
+
+        // If there is a winning bid, update its status
+        if (winningBid != null && winningBid.Amount >= bid.Amount)
+        {
+            return Error.Validation(description: "Bid amount must be higher than the current winning bid");
+        }
+
+        winningBid?.UpdateWinningStatus(false);
+        bid.UpdateWinningStatus(true);
+        UpdateCurrentPrice(bid.Amount);
+
+        _bids.Add(bid);
+
+        return Result.Success;
     }
 }

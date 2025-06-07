@@ -1,6 +1,6 @@
 using BidNet.Data.Persistence;
 using BidNet.Domain.Entities;
-using BidNet.Shared.Abstractions;
+using BidNet.Shared.Services;
 using ErrorOr;
 using FluentValidation;
 using MediatR;
@@ -40,6 +40,9 @@ public class CreateAuctionCommandHandler : IRequestHandler<CreateAuctionCommand,
     public async Task<ErrorOr<Auction>> Handle(CreateAuctionCommand request, CancellationToken cancellationToken)
     {
         var auction = new Auction(request.Title, request.Description, request.StartDate, request.EndDate, request.StartingPrice, _userService.UserId);
+
+        // Start the auction immediately until we implement the scheduled start feature
+        auction.Start();
 
         _dbContext.Auctions.Add(auction);
         await _dbContext.SaveChangesAsync(cancellationToken);

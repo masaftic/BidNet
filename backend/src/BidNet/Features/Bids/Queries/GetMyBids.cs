@@ -1,6 +1,7 @@
 using BidNet.Data.Persistence;
+using BidNet.Features.Bids.Mapping;
 using BidNet.Features.Bids.Models;
-using BidNet.Shared.Abstractions;
+using BidNet.Shared.Services;
 using ErrorOr;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -13,16 +14,13 @@ public record GetMyBidsQuery : IRequest<ErrorOr<UserBidsResponse>>;
 public class GetMyBidsQueryHandler : IRequestHandler<GetMyBidsQuery, ErrorOr<UserBidsResponse>>
 {
     private readonly AppDbContext _dbContext;
-    private readonly AutoMapper.IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
 
     public GetMyBidsQueryHandler(
         AppDbContext dbContext,
-        AutoMapper.IMapper mapper,
         ICurrentUserService currentUserService)
     {
         _dbContext = dbContext;
-        _mapper = mapper;
         _currentUserService = currentUserService;
     }
 
@@ -37,14 +35,16 @@ public class GetMyBidsQueryHandler : IRequestHandler<GetMyBidsQuery, ErrorOr<Use
         }
 
         var bids = await _dbContext.Bids
+            .AsNoTracking()
             .Where(b => b.UserId == userId)
+            .ToBidDto()
             .OrderByDescending(b => b.CreatedAt)
             .ToListAsync(cancellationToken);
 
         return new UserBidsResponse
         {
             UserId = user.Id,
-            Bids = _mapper.Map<IEnumerable<BidResponse>>(bids)
+            Bids = bids
         };
     }
 }

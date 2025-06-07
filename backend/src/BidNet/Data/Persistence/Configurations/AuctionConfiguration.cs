@@ -24,12 +24,12 @@ public class AuctionConfiguration : IEntityTypeConfiguration<Auction>
             .WithMany()
             .HasForeignKey(x => x.CreatedBy)
             .OnDelete(DeleteBehavior.Restrict);
-        
+
         builder.HasOne(x => x.Winner)
             .WithMany()
             .HasForeignKey(x => x.WinnerId)
             .OnDelete(DeleteBehavior.Restrict);
-        
+
         builder.Property(x => x.StartDate)
             .HasColumnType("datetime2")
             .IsRequired();
@@ -37,19 +37,19 @@ public class AuctionConfiguration : IEntityTypeConfiguration<Auction>
         builder.Property(x => x.EndDate)
             .HasColumnType("datetime2")
             .IsRequired();
-        
+
         builder.Property(x => x.StartingPrice)
             .HasPrecision(18, 2)
             .IsRequired();
-        
+
         builder.Property(x => x.CurrentPrice)
             .HasPrecision(18, 2)
             .IsRequired(false);
-        
+
         builder.Property(x => x.Status)
             .HasConversion<string>()
             .IsRequired();
-        
+
         builder.Property(x => x.CreatedAt)
             .HasColumnType("datetime2")
             .IsRequired();

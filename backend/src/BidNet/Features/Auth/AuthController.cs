@@ -1,7 +1,5 @@
-using AutoMapper;
 using BidNet.Features.Auth.Commands;
 using BidNet.Features.Auth.Models;
-using BidNet.Features.Auth.Queries;
 using BidNet.Shared.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -13,12 +11,10 @@ namespace BidNet.Features.Auth;
 public class AuthController : ApiController
 {
     private readonly IMediator _mediator;
-    private readonly IMapper _mapper;
 
-    public AuthController(IMediator mediator, IMapper mapper)
+    public AuthController(IMediator mediator)
     {
         _mediator = mediator;
-        _mapper = mapper;
     }
 
     [HttpPost("register")]
@@ -27,9 +23,7 @@ public class AuthController : ApiController
     {
         var command = new RegisterCommand(request.Username, request.Email, request.Password, request.Role);
         var result = await _mediator.Send(command);
-        return result.Match(
-            user => Ok(_mapper.Map<UserResponse>(user)),
-            HandleErrors);
+        return result.Match(Ok, HandleErrors);
     }
 
     [HttpPost("login")]
@@ -55,17 +49,6 @@ public class AuthController : ApiController
                 Token = authResult.Token,
                 RefreshToken = authResult.RefreshToken
             }),
-            HandleErrors);
-    }
-
-    [HttpGet("me")]
-    [Authorize]
-    public async Task<IActionResult> GetCurrentUser()
-    {
-        var query = new GetCurrentUserQuery();
-        var result = await _mediator.Send(query);
-        return result.Match(
-            user => Ok(_mapper.Map<UserResponse>(user)),
             HandleErrors);
     }
 

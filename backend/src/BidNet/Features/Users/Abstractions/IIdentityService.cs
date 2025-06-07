@@ -11,7 +11,7 @@ public interface IIdentityService
     Task<User?> GetUserByEmailAsync(string email);
     Task<ErrorOr<AuthenticationResult>> AuthenticateAsync(string email, string password);
     Task<UserId?> GetUserIdAsync(string email);
-    Task<UserRole?> GetUserRoleAsync(UserId userId);
+    Task<List<UserRole>> GetUserRolesAsync(UserId userId);
     Task<bool> IsInRoleAsync(UserId userId, string role);
     Task<ErrorOr<Deleted>> DeleteUserAsync(UserId userId);
     Task<ErrorOr<AuthenticationResult>> RefreshTokenAsync(UserId userId, string refreshToken);

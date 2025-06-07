@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BidNet SignalR Test Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        input, button {
+            padding: 10px;
+            border-radius: 4px;
+        }
+        input {
+            border: 1px solid #ddd;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            cursor: pointer;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            margin-right: 8px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #bidsContainer {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #fafafa;
+            border-radius: 4px;
+        }
+        .bid-item {
+            border-bottom: 1px solid #eee;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            background-color: white;
+        }
+        .winning-bid {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+        }
+        .connection-status {
+            padding: 5px 10px;
+            display: inline-block;
+            border-radius: 4px;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        .connected {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .disconnected {
+            background-color: #f44336;
+            color: white;
+        }
+        #auctionInfo {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .user-notification {
+            background-color: #fff8e1;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-style: italic;
+            transition: opacity 0.5s;
+        }
+        .status-update {
+            background-color: #e1f5fe;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            border-left: 4px solid #03a9f4;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>BidNet SignalR Test Client <span id="connectionStatus" class="connection-status disconnected">Disconnected</span></h1>
+        
+        <div class="card">
+            <h2>Connect to SignalR Hub</h2>
+            <div class="form-group">
+                <label for="tokenInput">JWT Token:</label>
+                <input type="text" id="tokenInput" placeholder="Enter JWT token" style="width: 400px;">
+            </div>
+            <div class="form-group">
+                <button id="connectBtn">Connect</button>
+                <button id="disconnectBtn">Disconnect</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Join Auction Group</h2>
+            <div class="form-group">
+                <label for="auctionId">Auction ID:</label>
+                <input type="text" id="auctionId" placeholder="Enter auction ID">
+                <button id="joinAuctionBtn">Join</button>
+                <button id="leaveAuctionBtn">Leave</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Auction Bids</h2>
+            <div id="auctionInfo">
+                <div>Auction ID: <span id="currentAuctionId">N/A</span></div>
+                <div>Current Price: <span id="currentPrice">N/A</span></div>
+            </div>
+            <h3>Bid History</h3>
+            <div id="bidsContainer">
+                <p id="noBidsMessage">No bids yet</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
+    <script>
+        // Store the SignalR connection
+        let connection = null;
+        let currentAuctionId = null;
+        let bidHistory = [];
+        let activeUsers = 0;
+
+        // Set references to DOM elements
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const tokenInput = document.getElementById('tokenInput');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const joinAuctionBtn = document.getElementById('joinAuctionBtn');
+        const leaveAuctionBtn = document.getElementById('leaveAuctionBtn');
+        const auctionIdInput = document.getElementById('auctionId');
+        const currentAuctionIdEl = document.getElementById('currentAuctionId');
+        const currentPriceEl = document.getElementById('currentPrice');
+        const bidsContainer = document.getElementById('bidsContainer');
+        const noBidsMessage = document.getElementById('noBidsMessage');
+
+        // Connect to the SignalR hub
+        connectBtn.addEventListener('click', async () => {
+            const token = tokenInput.value.trim();
+            if (!token) {
+                alert('Please enter a JWT token');
+                return;
+            }
+
+            // Create the connection
+            connection = new signalR.HubConnectionBuilder()
+                .withUrl(`http://localhost:5000/hubs/bid?access_token=${token}`)
+                .withAutomaticReconnect()
+                .configureLogging(signalR.LogLevel.Information)
+                .build();
+
+            // Set up event handlers
+            connection.on('ReceiveBid', (bid) => {
+                console.log('Received new bid:', bid);
+                bidHistory.push(bid);
+                addBidToUI(bid);
+            });
+
+            connection.on('AuctionUpdated', (data) => {
+                console.log('Auction updated:', data);
+                if (data.auctionId === currentAuctionId) {
+                    updateAuctionInfo(data);
+                }
+            });
+            
+            connection.on('AuctionStatusChanged', (data) => {
+                console.log('Auction status changed:', data);
+                if (data.auctionId === currentAuctionId) {
+                    const statusMessage = document.createElement('div');
+                    statusMessage.className = 'status-update';
+                    statusMessage.innerHTML = `<strong>Auction status:</strong> ${data.status}`;
+                    
+                    if (data.winnerId) {
+                        statusMessage.innerHTML += `<br><strong>Winner ID:</strong> ${data.winnerId}`;
+                    }
+                    
+                    bidsContainer.insertBefore(statusMessage, bidsContainer.firstChild);
+                }
+            });
+            
+            connection.on('UserJoinedAuction', (data) => {
+                console.log('User joined:', data);
+                if (currentAuctionId) {
+                    activeUsers = data.connectionCount;
+                    addUserNotification(`${data.username} joined the auction. (${activeUsers} active)`);
+                }
+            });
+            
+            connection.on('UserLeftAuction', (data) => {
+                console.log('User left:', data);
+                if (currentAuctionId) {
+                    activeUsers = data.connectionCount;
+                    addUserNotification(`${data.username} left the auction. (${activeUsers} active)`);
+                }
+            });
+
+            // Handle connection events
+            connection.onreconnecting((error) => {
+                connectionStatus.textContent = 'Reconnecting...';
+                connectionStatus.classList.remove('connected');
+                connectionStatus.classList.add('disconnected');
+                console.log('Connection lost, reconnecting...', error);
+            });
+
+            connection.onreconnected((connectionId) => {
+                connectionStatus.textContent = 'Connected';
+                connectionStatus.classList.remove('disconnected');
+                connectionStatus.classList.add('connected');
+                console.log('Connection reestablished. ConnectionId:', connectionId);
+                
+                // Rejoin auction group if needed
+                if (currentAuctionId) {
+                    connection.invoke('JoinAuctionGroup', currentAuctionId);
+                }
+            });
+
+            try {
+                await connection.start();
+                console.log('Connected to SignalR hub');
+                connectionStatus.textContent = 'Connected';
+                connectionStatus.classList.remove('disconnected');
+                connectionStatus.classList.add('connected');
+            } catch (err) {
+                console.error('Error connecting to SignalR hub:', err);
+                alert(`Connection error: ${err.message}`);
+            }
+        });
+
+        // Disconnect from the SignalR hub
+        disconnectBtn.addEventListener('click', async () => {
+            if (connection) {
+                try {
+                    await connection.stop();
+                    console.log('Disconnected from SignalR hub');
+                    connectionStatus.textContent = 'Disconnected';
+                    connectionStatus.classList.remove('connected');
+                    connectionStatus.classList.add('disconnected');
+                    clearBids();
+                } catch (err) {
+                    console.error('Error disconnecting:', err);
+                }
+            }
+        });
+
+        // Join an auction group
+        joinAuctionBtn.addEventListener('click', async () => {
+            const auctionId = auctionIdInput.value.trim();
+            if (!auctionId) {
+                alert('Please enter an auction ID');
+                return;
+            }
+
+            if (connection && connection.state === signalR.HubConnectionState.Connected) {
+                try {
+                    await connection.invoke('JoinAuctionGroup', auctionId);
+                    console.log(`Joined auction group: ${auctionId}`);
+                    currentAuctionId = auctionId;
+                    currentAuctionIdEl.textContent = auctionId;
+                    
+                    // You might want to fetch the current auction details here
+                    // using a REST API call to get initial state
+                } catch (err) {
+                    console.error('Error joining auction group:', err);
+                }
+            } else {
+                alert('Not connected to the hub');
+            }
+        });
+
+        // Leave an auction group
+        leaveAuctionBtn.addEventListener('click', async () => {
+            if (!currentAuctionId) {
+                alert('Not currently in an auction group');
+                return;
+            }
+
+            if (connection && connection.state === signalR.HubConnectionState.Connected) {
+                try {
+                    await connection.invoke('LeaveAuctionGroup', currentAuctionId);
+                    console.log(`Left auction group: ${currentAuctionId}`);
+                    currentAuctionId = null;
+                    currentAuctionIdEl.textContent = 'N/A';
+                    currentPriceEl.textContent = 'N/A';
+                    clearBids();
+                } catch (err) {
+                    console.error('Error leaving auction group:', err);
+                }
+            } else {
+                alert('Not connected to the hub');
+            }
+        });
+
+        // Helper function to add a bid to the UI
+        function addBidToUI(bid) {
+            if (noBidsMessage) {
+                noBidsMessage.style.display = 'none';
+            }
+
+            const bidItem = document.createElement('div');
+            bidItem.className = 'bid-item';
+            bidItem.innerHTML = `
+                <div><strong>Amount:</strong> $${bid.amount}</div>
+                <div><strong>User:</strong> ${bid.userName || 'Unknown'} (${bid.userId})</div>
+                <div><strong>Time:</strong> ${new Date(bid.createdAt).toLocaleString()}</div>
+                <div><strong>Status:</strong> ${bid.isWinning ? 'Winning Bid' : 'Previous Bid'}</div>
+            `;
+
+            if (bid.isWinning) {
+                bidItem.classList.add('winning-bid');
+            }
+
+            bidsContainer.insertBefore(bidItem, bidsContainer.firstChild);
+            
+            if (bid.isWinning) {
+                currentPriceEl.textContent = `$${bid.amount}`;
+            }
+        }
+        
+        // Updates auction info with the latest data
+        function updateAuctionInfo(data) {
+            currentPriceEl.textContent = `$${data.currentPrice}`;
+            
+            // Add additional auction info if needed
+            const infoContainer = document.getElementById('auctionInfo');
+            if (infoContainer) {
+                const lastBidTime = new Date(data.lastBidTime).toLocaleString();
+                
+                // Update or create bid count element
+                let bidCountEl = document.getElementById('bidCount');
+                if (!bidCountEl) {
+                    bidCountEl = document.createElement('div');
+                    bidCountEl.id = 'bidCount';
+                    infoContainer.appendChild(bidCountEl);
+                }
+                bidCountEl.innerHTML = `<strong>Total Bids:</strong> ${data.bidCount}`;
+                
+                // Update or create last bidder element
+                let lastBidderEl = document.getElementById('lastBidder');
+                if (!lastBidderEl) {
+                    lastBidderEl = document.createElement('div');
+                    lastBidderEl.id = 'lastBidder';
+                    infoContainer.appendChild(lastBidderEl);
+                }
+                lastBidderEl.innerHTML = `<strong>Last Bidder:</strong> ${data.lastBidUserName} at ${lastBidTime}`;
+                
+                // Update active users count
+                let activeUsersEl = document.getElementById('activeUsers');
+                if (!activeUsersEl) {
+                    activeUsersEl = document.createElement('div');
+                    activeUsersEl.id = 'activeUsers';
+                    infoContainer.appendChild(activeUsersEl);
+                }
+                activeUsersEl.innerHTML = `<strong>Active Viewers:</strong> ${activeUsers}`;
+            }
+        }
+        
+        // Add a user notification to the UI
+        function addUserNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'user-notification';
+            notification.textContent = message;
+            
+            bidsContainer.insertBefore(notification, bidsContainer.firstChild);
+            
+            // Remove notification after a few seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 500);
+            }, 5000);
+        }
+
+        // Helper function to clear bids
+        function clearBids() {
+            bidHistory = [];
+            bidsContainer.innerHTML = '<p id="noBidsMessage">No bids yet</p>';
+        }
+    </script>
+</body>
+</html>

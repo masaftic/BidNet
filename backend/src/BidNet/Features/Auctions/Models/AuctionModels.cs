@@ -1,6 +1,6 @@
 namespace BidNet.Features.Auctions.Models;
 
-public record AuctionResponse(
+public record AuctionDto(
     Guid Id,
     string Title,
     string Description,

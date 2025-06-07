@@ -32,7 +32,7 @@ public class AuctionTests : IClassFixture<CustomWebApplicationFactory>
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var auction = await response.Content.ReadFromJsonAsync<AuctionResponse>();
+        var auction = await response.Content.ReadFromJsonAsync<AuctionDto>();
         auction.Should().NotBeNull();
         auction!.Title.Should().Be(request.Title);
         auction.Description.Should().Be(request.Description);
@@ -50,7 +50,7 @@ public class AuctionTests : IClassFixture<CustomWebApplicationFactory>
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var auction = await response.Content.ReadFromJsonAsync<AuctionResponse>();
+        var auction = await response.Content.ReadFromJsonAsync<AuctionDto>();
         auction.Should().NotBeNull();
         auction.Id.Should().Be(auctionId);
     }
@@ -74,7 +74,7 @@ public class AuctionTests : IClassFixture<CustomWebApplicationFactory>
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var auction = await response.Content.ReadFromJsonAsync<AuctionResponse>();
+        var auction = await response.Content.ReadFromJsonAsync<AuctionDto>();
         auction.Should().NotBeNull();
         auction.Title.Should().Be(request.Title);
         auction.Description.Should().Be(request.Description);
@@ -102,7 +102,7 @@ public class AuctionTests : IClassFixture<CustomWebApplicationFactory>
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var auctions = await response.Content.ReadFromJsonAsync<AuctionResponse[]>();
+        var auctions = await response.Content.ReadFromJsonAsync<AuctionDto[]>();
         auctions.Should().NotBeNull();
         auctions.Should().NotBeEmpty();
     }
@@ -121,7 +121,7 @@ public class AuctionTests : IClassFixture<CustomWebApplicationFactory>
         var response = await _client.PostAsJsonAsync("/api/auctions", request);
         response.EnsureSuccessStatusCode();
 
-        var auction = await response.Content.ReadFromJsonAsync<AuctionResponse>();
+        var auction = await response.Content.ReadFromJsonAsync<AuctionDto>();
         return auction!.Id;
     }
 }

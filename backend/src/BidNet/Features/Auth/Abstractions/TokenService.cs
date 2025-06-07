@@ -19,17 +19,20 @@ public class TokenService : ITokenService
         _jwtSettings = jwtSettings.Value;
     }
 
-    public string GenerateAccessToken(UserId userId, string email, UserRole role)
+    public string GenerateAccessToken(UserId userId, string email, List<UserRole> roles)
     {
         var key = Encoding.UTF8.GetBytes(_jwtSettings.Key);
         var tokenHandler = new JwtSecurityTokenHandler();
+
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, userId.Value.ToString()),
             new(JwtRegisteredClaimNames.Email, email),
-            new(ClaimTypes.Role, role.ToString()),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
+
+        var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role.ToString())).ToList();
+        claims.AddRange(roleClaims);
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {

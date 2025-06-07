@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using BidNet.Features.Users.Identity;
 using BidNet.Data.Persistence;
 using BidNet.Features.Users.Abstractions;
-using BidNet.Shared.Abstractions;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using BidNet.Features.Auth.Models;
 using BidNet.Features.Auth.Abstractions;
+using BidNet.Features.Bids.Services;
+using BidNet.Shared.Services;
 
 namespace BidNet;
 
@@ -25,6 +26,10 @@ public static class DependencyInjection
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddHttpContextAccessor();
 
+        // Add SignalR services
+        services.AddSignalR();
+        services.AddScoped<IBidNotificationService, BidNotificationService>();
+
         services.AddPersistence(configuration);
         services.AddAuthentication(options =>
         {
@@ -40,8 +45,22 @@ public static class DependencyInjection
                 ValidateAudience = false
             };
 
+            // Configure SignalR authentication
             options.Events = new JwtBearerEvents
             {
+                OnMessageReceived = context =>
+                {
+                    // Get the token from the query string for SignalR connections
+                    var accessToken = context.Request.Query["access_token"];
+                    var path = context.HttpContext.Request.Path;
+                    
+                    if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                    {
+                        context.Token = accessToken;
+                    }
+                    
+                    return Task.CompletedTask;
+                },
                 OnTokenValidated = context =>
                 {
                     // Custom logic after token validation

@@ -1,5 +1,6 @@
 using BidNet.Data.Persistence;
 using BidNet.Domain.Entities;
+using BidNet.Shared.Services;
 using ErrorOr;
 using FluentValidation;
 using MediatR;
@@ -31,10 +32,12 @@ public record UpdateAuctionCommand(Guid Id, string Title, string Description, Da
 public class UpdateAuctionCommandHandler : IRequestHandler<UpdateAuctionCommand, ErrorOr<Auction>>
 {
     private readonly AppDbContext _dbContext;
+    private readonly ICurrentUserService _userService;
 
-    public UpdateAuctionCommandHandler(AppDbContext dbContext)
+    public UpdateAuctionCommandHandler(AppDbContext dbContext, ICurrentUserService userService)
     {
         _dbContext = dbContext;
+        _userService = userService;
     }
 
     public async Task<ErrorOr<Auction>> Handle(UpdateAuctionCommand request, CancellationToken cancellationToken)
@@ -44,6 +47,11 @@ public class UpdateAuctionCommandHandler : IRequestHandler<UpdateAuctionCommand,
         if (auction == null)
         {
             return Error.NotFound(description: "Auction not found.");
+        }
+
+        if (auction.CreatedBy != _userService.UserId || !_userService.IsInRole("Admin"))
+        {
+            return Error.Forbidden(description: "You do not have permission to update this auction.");
         }
 
         auction.UpdateDetails(request.Title, request.Description, request.StartDate, request.EndDate, request.StartingPrice);

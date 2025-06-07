@@ -1,6 +1,8 @@
 using BidNet.Domain.Entities;
 using BidNet.Domain.Enums;
+using BidNet.Features.Auth.Models;
 using BidNet.Features.Users.Abstractions;
+using BidNet.Features.Users.Mapping;
 using ErrorOr;
 using FluentValidation;
 using MediatR;
@@ -27,10 +29,10 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
     }
 }
 
-public record RegisterCommand(string Username, string Email, string Password, UserRole Role = UserRole.Bidder) 
-    : IRequest<ErrorOr<User>>;
+public record RegisterCommand(string Username, string Email, string Password, UserRole Role = UserRole.Bidder)
+    : IRequest<ErrorOr<UserDto>>;
 
-public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<User>>
+public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<UserDto>>
 {
     private readonly IIdentityService _identityService;
 
@@ -39,12 +41,20 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<U
         _identityService = identityService;
     }
 
-    public async Task<ErrorOr<User>> Handle(RegisterCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<UserDto>> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
-        return await _identityService.CreateUserAsync(
+        ErrorOr<User> result = await _identityService.CreateUserAsync(
             request.Username,
             request.Email,
             request.Password,
             request.Role);
+
+        if (result.IsError)
+        {
+            return result.Errors;
+        }
+
+        var user = result.Value;
+        return user.ToUserDto();
     }
 }

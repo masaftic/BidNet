@@ -1,6 +1,6 @@
 using BidNet.Data.Persistence;
 using BidNet.Domain.Entities;
-using BidNet.Shared.Abstractions;
+using BidNet.Shared.Services;
 using ErrorOr;
 using FluentValidation;
 using MediatR;

@@ -1,8 +1,11 @@
 using BidNet.Data.Persistence;
 using BidNet.Domain.Entities;
+using BidNet.Features.Auctions.Mapping;
+using BidNet.Features.Auctions.Models;
 using ErrorOr;
 using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace BidNet.Features.Auctions.Queries;
 
@@ -15,9 +18,9 @@ public class GetAuctionByIdQueryValidator : AbstractValidator<GetAuctionByIdQuer
     }
 }
 
-public record GetAuctionByIdQuery(Guid Id) : IRequest<ErrorOr<Auction>>;
+public record GetAuctionByIdQuery(Guid Id) : IRequest<ErrorOr<AuctionDto>>;
 
-public class GetAuctionByIdQueryHandler : IRequestHandler<GetAuctionByIdQuery, ErrorOr<Auction>>
+public class GetAuctionByIdQueryHandler : IRequestHandler<GetAuctionByIdQuery, ErrorOr<AuctionDto>>
 {
     private readonly AppDbContext _dbContext;
 
@@ -26,9 +29,13 @@ public class GetAuctionByIdQueryHandler : IRequestHandler<GetAuctionByIdQuery, E
         _dbContext = dbContext;
     }
 
-    public async Task<ErrorOr<Auction>> Handle(GetAuctionByIdQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<AuctionDto>> Handle(GetAuctionByIdQuery request, CancellationToken cancellationToken)
     {
-        var auction = await _dbContext.Auctions.FindAsync(request.Id);
+        var auction = await _dbContext
+            .Auctions
+            .AsNoTracking()
+            .ToAuctionDto()
+            .FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken: cancellationToken);
 
         if (auction == null)
         {

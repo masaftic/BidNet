@@ -1,7 +1,8 @@
 using BidNet.Data.Persistence;
 using BidNet.Domain.Entities;
 using BidNet.Domain.Enums;
-using BidNet.Shared.Abstractions;
+using BidNet.Features.Bids.Services;
+using BidNet.Shared.Services;
 using ErrorOr;
 using FluentValidation;
 using MediatR;
@@ -27,17 +28,22 @@ public class PlaceBidCommandHandler : IRequestHandler<PlaceBidCommand, ErrorOr<B
 {
     private readonly AppDbContext _dbContext;
     private readonly ICurrentUserService _userService;
+    private readonly IBidNotificationService _bidNotificationService;
 
-    public PlaceBidCommandHandler(AppDbContext dbContext, ICurrentUserService userService)
+    public PlaceBidCommandHandler(
+        AppDbContext dbContext,
+        ICurrentUserService userService,
+        IBidNotificationService bidNotificationService)
     {
         _dbContext = dbContext;
         _userService = userService;
+        _bidNotificationService = bidNotificationService;
     }
 
     public async Task<ErrorOr<Bid>> Handle(PlaceBidCommand request, CancellationToken cancellationToken)
     {
         var auction = await _dbContext.Auctions
-            .Include(a => a.CreatedByUser)
+            .Include(a => a.Bids)
             .FirstOrDefaultAsync(a => a.Id == request.AuctionId, cancellationToken);
 
         if (auction == null)
@@ -45,42 +51,17 @@ public class PlaceBidCommandHandler : IRequestHandler<PlaceBidCommand, ErrorOr<B
             return Error.NotFound(description: "Auction not found");
         }
 
-        // Check if auction is live
-        if (auction.Status != AuctionStatus.Live)
-        {
-            return Error.Validation(description: "Auction is not live");
-        }
-
-        // Check if amount is higher than current price
-        if (auction.CurrentPrice.HasValue && request.Amount <= auction.CurrentPrice.Value)
-        {
-            return Error.Validation(description: "Bid amount must be higher than current price");
-        }
-
-        // Check if amount is higher than starting price
-        if (!auction.CurrentPrice.HasValue && request.Amount <= auction.StartingPrice)
-        {
-            return Error.Validation(description: "Bid amount must be higher than starting price");
-        }
-
         // Create new bid
         var bid = new Bid(auction.Id, _userService.UserId, request.Amount);
+        var placeBidResult = auction.PlaceBid(bid);
+        if (placeBidResult.IsError)
+            return placeBidResult.Errors;
 
-        // Update previous winning bid
-        var previousWinningBid = await _dbContext.Bids
-            .FirstOrDefaultAsync(b => b.AuctionId == auction.Id && b.IsWinning, cancellationToken);
 
-        previousWinningBid?.UpdateWinningStatus(false);
-
-        // Set new bid as winning
-        bid.UpdateWinningStatus(true);
-
-        // Update auction's current price
-        auction.UpdateCurrentPrice(request.Amount);
-
-        // Add bid to database
-        _dbContext.Bids.Add(bid);
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        // Send real-time notification
+        await _bidNotificationService.NotifyBidPlaced(bid);
 
         return bid;
     }

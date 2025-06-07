@@ -1,4 +1,3 @@
-using AutoMapper;
 using BidNet.Features.Bids.Commands;
 using BidNet.Features.Bids.Models;
 using BidNet.Features.Bids.Queries;
@@ -13,14 +12,10 @@ namespace BidNet.Features.Bids;
 public class BidsController : ApiController
 {
     private readonly IMediator _mediator;
-    private readonly IMapper _mapper;
 
-    public BidsController(
-        IMediator mediator, 
-        IMapper mapper)
+    public BidsController(IMediator mediator)
     {
         _mediator = mediator;
-        _mapper = mapper;
     }
 
     [HttpPost]
@@ -29,9 +24,7 @@ public class BidsController : ApiController
     {
         var command = new PlaceBidCommand(request.AuctionId, request.Amount);
         var result = await _mediator.Send(command);
-        return result.Match(
-            bid => Ok(_mapper.Map<BidResponse>(bid)),
-            HandleErrors);
+        return result.Match(Ok, HandleErrors);
     }
 
     [HttpGet("auctions/{auctionId}")]
@@ -40,19 +33,15 @@ public class BidsController : ApiController
     {
         var query = new GetAuctionBidsQuery(auctionId);
         var result = await _mediator.Send(query);
-        return result.Match(
-            bidList => Ok(bidList),
-            HandleErrors);
+        return result.Match(Ok, HandleErrors);
     }
 
-    [HttpGet("me")]
+    [HttpGet("mine")]
     [Authorize]
     public async Task<IActionResult> GetMyBids()
     {
         var query = new GetMyBidsQuery();
         var result = await _mediator.Send(query);
-        return result.Match(
-            bidList => Ok(bidList),
-            HandleErrors);
+        return result.Match(Ok, HandleErrors);
     }
 }

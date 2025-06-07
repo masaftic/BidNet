@@ -19,7 +19,7 @@ public class BidConfiguration : IEntityTypeConfiguration<Bid>
             .HasPrecision(18, 2);
         
         builder.HasOne(x => x.Auction)
-            .WithMany()
+            .WithMany(a => a.Bids)
             .HasForeignKey(x => x.AuctionId)
             .OnDelete(DeleteBehavior.Cascade);
         

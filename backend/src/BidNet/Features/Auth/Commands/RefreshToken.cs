@@ -1,6 +1,6 @@
 using BidNet.Features.Auth.Models;
 using BidNet.Features.Users.Abstractions;
-using BidNet.Shared.Abstractions;
+using BidNet.Shared.Services;
 using ErrorOr;
 using FluentValidation;
 using MediatR;

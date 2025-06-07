@@ -4,10 +4,11 @@
             "baseUrl": "http://localhost:5000/api"
         },
         "dev": {
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhNzU2ZGFkMy0xMzM0LTQ2MDYtOTAxZi0xMzllZjBiOGU2YjEiLCJlbWFpbCI6Im5ld1VzZXIyQGV4YW1wbGUuY29tIiwicm9sZSI6IkJpZGRlciIsImp0aSI6IjkxMmVjZTdjLTBmMDYtNDM4MS05M2I3LWQ0YmZlZGExNWVhZiIsIm5iZiI6MTc0Nzg0MjYzOSwiZXhwIjoxNzQ3ODQ2MjM5LCJpYXQiOjE3NDc4NDI2MzksImlzcyI6InlvdXItaXNzdWVyIiwiYXVkIjoieW91ci1hdWRpZW5jZSJ9.gjiTtRIr03SA3SOyBlMrhq6kb7npDePux_P0iGwgi0E",
         }, 
     },
     "cSpell.words": [
         "bidnet"
-    ]
+    ],
+    "csharp.rootNamespace": "BidNet",
 }

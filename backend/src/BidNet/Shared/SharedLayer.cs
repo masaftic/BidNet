@@ -17,7 +17,6 @@ public static class SharedLayer
         });
 
         services.AddValidatorsFromAssembly(typeof(SharedLayer).Assembly);
-        services.AddAutoMapper(typeof(SharedLayer).Assembly);
 
         return services;
     }

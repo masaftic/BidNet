@@ -1,5 +1,6 @@
 using BidNet.Data.Persistence;
 using BidNet.Domain.Entities;
+using BidNet.Features.Bids.Mapping;
 using BidNet.Features.Bids.Models;
 using ErrorOr;
 using FluentValidation;
@@ -22,18 +23,16 @@ public record GetAuctionBidsQuery(AuctionId AuctionId) : IRequest<ErrorOr<Auctio
 public class GetAuctionBidsQueryHandler : IRequestHandler<GetAuctionBidsQuery, ErrorOr<AuctionBidsResponse>>
 {
     private readonly AppDbContext _dbContext;
-    private readonly AutoMapper.IMapper _mapper;
 
-    public GetAuctionBidsQueryHandler(AppDbContext dbContext, AutoMapper.IMapper mapper)
+    public GetAuctionBidsQueryHandler(AppDbContext dbContext)
     {
         _dbContext = dbContext;
-        _mapper = mapper;
     }
 
     public async Task<ErrorOr<AuctionBidsResponse>> Handle(GetAuctionBidsQuery request, CancellationToken cancellationToken)
     {
         var auction = await _dbContext.Auctions
-            .Include(a => a.CreatedByUser)
+            .AsNoTracking()
             .FirstOrDefaultAsync(a => a.Id == request.AuctionId, cancellationToken);
 
         if (auction == null)
@@ -42,8 +41,10 @@ public class GetAuctionBidsQueryHandler : IRequestHandler<GetAuctionBidsQuery, E
         }
 
         var bids = await _dbContext.Bids
+            .AsNoTracking()
             .Where(b => b.AuctionId == request.AuctionId)
             .OrderByDescending(b => b.CreatedAt)
+            .ToBidDto()
             .ToListAsync(cancellationToken);
 
         var winningBid = bids.FirstOrDefault(b => b.IsWinning);
@@ -53,8 +54,8 @@ public class GetAuctionBidsQueryHandler : IRequestHandler<GetAuctionBidsQuery, E
             AuctionId = auction.Id,
             StartingPrice = auction.StartingPrice,
             CurrentPrice = auction.CurrentPrice,
-            WinningBid = winningBid != null ? _mapper.Map<BidResponse>(winningBid) : null,
-            BidHistory = _mapper.Map<IEnumerable<BidResponse>>(bids)
+            WinningBid = winningBid,
+            BidHistory = bids
         };
     }
 }

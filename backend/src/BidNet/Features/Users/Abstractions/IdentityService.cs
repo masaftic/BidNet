@@ -37,7 +37,7 @@ public class IdentityService : IIdentityService
             return Error.Unauthorized(description: "Invalid password.");
         }
 
-        var token = _tokenService.GenerateAccessToken(user.Id, user.Email, user.Role);
+        var token = _tokenService.GenerateAccessToken(user.Id, user.Email, user.Roles.ToList());
         var refreshToken = _tokenService.GenerateRefreshToken();
 
         _dbContext.RefreshTokens.Add(new RefreshToken(user.Id, refreshToken, DateTime.UtcNow.AddDays(7)));
@@ -102,10 +102,10 @@ public class IdentityService : IIdentityService
         return user?.Id;
     }
 
-    public async Task<UserRole?> GetUserRoleAsync(UserId userId)
+    public async Task<List<UserRole>> GetUserRolesAsync(UserId userId)
     {
         var user = await _dbContext.Users.FindAsync(userId.Value);
-        return user?.Role;
+        return user?.Roles.ToList() ?? [];
     }
 
     public async Task<bool> IsInRoleAsync(UserId userId, string role)
@@ -116,8 +116,11 @@ public class IdentityService : IIdentityService
         {
             return false;
         }
-
-        return user.Role.ToString() == role;
+        if (!Enum.TryParse<UserRole>(role, out var userRole))
+        {
+            return false;
+        }
+        return user.Roles.Contains(userRole);
     }
 
     public async Task<ErrorOr<AuthenticationResult>> RefreshTokenAsync(UserId userId, string refreshToken)
@@ -138,7 +141,7 @@ public class IdentityService : IIdentityService
 
         refreshTokenEntity.Revoke();
 
-        var newAccessToken = _tokenService.GenerateAccessToken(userId, user.Email, user.Role);
+        var newAccessToken = _tokenService.GenerateAccessToken(userId, user.Email, user.Roles.ToList());
         var newRefreshToken = _tokenService.GenerateRefreshToken();
 
         _dbContext.RefreshTokens.Add(new RefreshToken(userId, newRefreshToken, DateTime.UtcNow.AddDays(7)));

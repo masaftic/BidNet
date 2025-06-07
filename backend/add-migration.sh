@@ -8,9 +8,9 @@ fi
 
 
 MIGRATION_NAME=$1
-STARTUP_PROJECT="src/Bidnet.Api/Bidnet.Api.csproj"
-PROJECT="src/Bidnet.Infrastructure/Bidnet.Infrastructure.csproj"
-MIGRATIONS_PATH="Persistence/Migrations"
+STARTUP_PROJECT="src/BidNet/"
+PROJECT="src/BidNet/"
+MIGRATIONS_PATH="Data/Persistence/Migrations"
 
 # Run the EF Core migration command
 dotnet ef migrations add "$MIGRATION_NAME" \

@@ -1,7 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using AutoMapper;
 using BidNet.Features.Auctions.Commands;
 using BidNet.Features.Auctions.Queries;
 using BidNet.Features.Auctions.Models;
@@ -13,16 +12,14 @@ namespace BidNet.Features.Auctions;
 public class AuctionsController : ApiController
 {
     private readonly IMediator _mediator;
-    private readonly IMapper _mapper;
 
-    public AuctionsController(IMediator mediator, IMapper mapper)
+    public AuctionsController(IMediator mediator)
     {
         _mediator = mediator;
-        _mapper = mapper;
     }
 
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "Seller, Admin")]
     public async Task<IActionResult> CreateAuction(CreateAuctionRequest request)
     {
         var command = new CreateAuctionCommand(
@@ -34,13 +31,12 @@ public class AuctionsController : ApiController
         );
 
         var result = await _mediator.Send(command);
-        return result.Match(
-            auction => Ok(_mapper.Map<AuctionResponse>(auction)),
-            HandleErrors);
+
+        return result.Match((res) => CreatedAtAction(nameof(GetAuctionById), new { id = res.Id }, res), HandleErrors);
     }
 
     [HttpPut("{id}")]
-    [Authorize]
+    [Authorize(Roles = "Seller, Admin")]
     public async Task<IActionResult> UpdateAuction(Guid id, UpdateAuctionRequest request)
     {
         var command = new UpdateAuctionCommand(
@@ -53,12 +49,11 @@ public class AuctionsController : ApiController
         );
 
         var result = await _mediator.Send(command);
-        return result.Match(
-            auction => Ok(_mapper.Map<AuctionResponse>(auction)),
-            HandleErrors);
+        return result.Match(Ok, HandleErrors);
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Seller, Admin")]
     public async Task<IActionResult> DeleteAuction(Guid id)
     {
         var command = new DeleteAuctionCommand(id);
@@ -72,9 +67,7 @@ public class AuctionsController : ApiController
     {
         var query = new GetAuctionByIdQuery(id);
         var result = await _mediator.Send(query);
-        return result.Match(
-            auction => Ok(_mapper.Map<AuctionResponse>(auction)),
-            HandleErrors);
+        return result.Match(Ok, HandleErrors);
     }
 
     [HttpGet]
@@ -83,8 +76,6 @@ public class AuctionsController : ApiController
     {
         var query = new GetAuctionsListQuery();
         var result = await _mediator.Send(query);
-        return result.Match(
-            auctions => Ok(_mapper.Map<IEnumerable<AuctionResponse>>(auctions)),
-            HandleErrors);
+        return result.Match(Ok, HandleErrors);
     }
 }

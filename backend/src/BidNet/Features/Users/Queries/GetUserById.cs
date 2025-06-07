@@ -1,8 +1,11 @@
 using BidNet.Data.Persistence;
 using BidNet.Domain.Entities;
+using BidNet.Features.Auth.Models;
+using BidNet.Features.Users.Mapping;
 using ErrorOr;
 using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace BidNet.Features.Users.Queries;
 
@@ -15,9 +18,9 @@ public class GetUserByIdValidator : AbstractValidator<GetUserByIdQuery>
     }
 }
 
-public record GetUserByIdQuery(UserId UserId) : IRequest<ErrorOr<User>>;
+public record GetUserByIdQuery(UserId UserId) : IRequest<ErrorOr<UserDto>>;
 
-public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, ErrorOr<User>>
+public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, ErrorOr<UserDto>>
 {
     private readonly AppDbContext _dbContext;
 
@@ -26,9 +29,12 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, ErrorOr
         _dbContext = dbContext;
     }
 
-    public async Task<ErrorOr<User>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<UserDto>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
     {
-        var user = await _dbContext.Users.FindAsync(request.UserId.Value);
+        var user = await _dbContext.Users
+            .AsNoTracking()
+            .ToUserDto()
+            .FirstOrDefaultAsync(u => u.Id == request.UserId.Value, cancellationToken: cancellationToken);
 
         if (user is null)
         {

@@ -15,7 +15,7 @@ public class User
     public string Username { get; private set; } = null!;
     public string Email { get; private set; } = null!;
     public string PasswordHash { get; private set; } = null!;
-    public UserRole Role { get; private set; } = UserRole.Bidder;
+    public HashSet<UserRole> Roles { get; private set; } = [];
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
 
     private User() { }
@@ -31,7 +31,7 @@ public class User
         Username = username;
         Email = email;
         PasswordHash = passwordHash;
-        Role = role;
+        Roles.Add(role);
     }
 
     public void UpdatePassword(string newPasswordHash)
