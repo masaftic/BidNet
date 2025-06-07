@@ -1,6 +1,8 @@
 using BidNet.Data.Persistence;
 using BidNet.Domain.Entities;
 using BidNet.Domain.Enums;
+using BidNet.Features.Bids.Mapping;
+using BidNet.Features.Bids.Models;
 using BidNet.Features.Bids.Services;
 using BidNet.Shared.Services;
 using ErrorOr;
@@ -22,9 +24,9 @@ public class PlaceBidCommandValidator : AbstractValidator<PlaceBidCommand>
     }
 }
 
-public record PlaceBidCommand(AuctionId AuctionId, decimal Amount) : IRequest<ErrorOr<Bid>>;
+public record PlaceBidCommand(AuctionId AuctionId, decimal Amount) : IRequest<ErrorOr<BidDto>>;
 
-public class PlaceBidCommandHandler : IRequestHandler<PlaceBidCommand, ErrorOr<Bid>>
+public class PlaceBidCommandHandler : IRequestHandler<PlaceBidCommand, ErrorOr<BidDto>>
 {
     private readonly AppDbContext _dbContext;
     private readonly ICurrentUserService _userService;
@@ -40,7 +42,7 @@ public class PlaceBidCommandHandler : IRequestHandler<PlaceBidCommand, ErrorOr<B
         _bidNotificationService = bidNotificationService;
     }
 
-    public async Task<ErrorOr<Bid>> Handle(PlaceBidCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<BidDto>> Handle(PlaceBidCommand request, CancellationToken cancellationToken)
     {
         var auction = await _dbContext.Auctions
             .Include(a => a.Bids)
@@ -63,6 +65,6 @@ public class PlaceBidCommandHandler : IRequestHandler<PlaceBidCommand, ErrorOr<B
         // Send real-time notification
         await _bidNotificationService.NotifyBidPlaced(bid);
 
-        return bid;
+        return bid.ToBidDto();
     }
 }

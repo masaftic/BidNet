@@ -28,7 +28,7 @@ public class Auction
     public UserId? WinnerId { get; private set; }
     public User? Winner { get; private set; }
 
-    private List<Bid> _bids { get; set; } = [];
+    private List<Bid> _bids = [];
     public IReadOnlyList<Bid> Bids => _bids.AsReadOnly();
 
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
@@ -108,6 +108,11 @@ public class Auction
         if (Status != AuctionStatus.Live)
         {
             return Error.Validation(description: "Auction is not live");
+        }
+
+        if (CreatedBy == bid.UserId)
+        {
+            return Error.Validation(description: "You cannot bid on your own auction");
         }
 
         // Check if amount is higher than current price

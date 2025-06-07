@@ -6,11 +6,17 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-
 MIGRATION_NAME=$1
 STARTUP_PROJECT="src/BidNet/"
 PROJECT="src/BidNet/"
 MIGRATIONS_PATH="Data/Persistence/Migrations"
+
+# if want to remove migration
+if [ "$1" == "remove" ]; then
+    echo "Removing the last migration..."
+    dotnet ef migrations remove --project "$PROJECT" --startup-project "$STARTUP_PROJECT"
+    exit 0
+fi
 
 # Run the EF Core migration command
 dotnet ef migrations add "$MIGRATION_NAME" \
