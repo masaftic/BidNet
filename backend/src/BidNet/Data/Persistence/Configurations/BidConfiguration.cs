@@ -9,11 +9,6 @@ public class BidConfiguration : IEntityTypeConfiguration<Bid>
     public void Configure(EntityTypeBuilder<Bid> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id)
-            .HasConversion(x => x.Value, x => new BidId(x));
-
-        builder.Property(x => x.AuctionId)
-            .HasConversion(x => x.Value, x => new AuctionId(x));
 
         builder.Property(x => x.Amount)
             .HasPrecision(18, 2);

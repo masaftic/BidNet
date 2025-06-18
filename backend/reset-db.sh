@@ -7,4 +7,4 @@ docker-compose down
 docker volume rm bidnet_db_data
 
 # Start the database container again
-docker-compose up -d db
+docker-compose up -d bidnet-db

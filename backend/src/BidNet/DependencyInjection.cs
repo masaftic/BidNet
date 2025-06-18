@@ -1,14 +1,19 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using BidNet.Features.Users.Identity;
 using BidNet.Data.Persistence;
-using BidNet.Features.Users.Abstractions;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using BidNet.Features.Auth.Models;
-using BidNet.Features.Auth.Abstractions;
 using BidNet.Features.Bids.Services;
 using BidNet.Shared.Services;
+using BidNet.Domain.Entities;
+using BidNet.Features.Authentication.Models;
+using BidNet.Features.Authentication.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
+using System.Net;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BidNet;
 
@@ -16,64 +21,64 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddHttpContextAccessor();        // Add SignalR services
+        services.AddSignalR();
+        services.AddScoped<IBidNotificationService, BidNotificationService>();
+        
+        services.AddPersistence(configuration);
+        services.AddIdentityCore<User>(options =>
+            { 
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 6;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+            })
+            .AddRoles<IdentityRole<UserId>>()
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddSignInManager<SignInManager<User>>()
+            .AddUserManager<UserManager<User>>()
+            .AddRoleManager<RoleManager<IdentityRole<UserId>>>()
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddApiEndpoints()
+            .AddDefaultTokenProviders();        
+        
         services.AddOptions<JwtSettings>()
             .Bind(configuration.GetSection(JwtSettings.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
-
-        services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped<IIdentityService, IdentityService>();
-        services.AddScoped<ICurrentUserService, CurrentUserService>();
-        services.AddHttpContextAccessor();
-
-        // Add SignalR services
-        services.AddSignalR();
-        services.AddScoped<IBidNotificationService, BidNotificationService>();
-
-        services.AddPersistence(configuration);
+        
+        var jwtSettings = services.BuildServiceProvider().GetService<IOptions<JwtSettings>>()!;
+        
         services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer((options) =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!)),
-                ValidateIssuer = false,
-                ValidateAudience = false
-            };
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero,
+                    ValidIssuer = jwtSettings.Value.Issuer,
+                    ValidAudience = jwtSettings.Value.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Value.Key))
+                };
+            });
 
-            // Configure SignalR authentication
-            options.Events = new JwtBearerEvents
-            {
-                OnMessageReceived = context =>
-                {
-                    // Get the token from the query string for SignalR connections
-                    var accessToken = context.Request.Query["access_token"];
-                    var path = context.HttpContext.Request.Path;
-                    
-                    if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
-                    {
-                        context.Token = accessToken;
-                    }
-                    
-                    return Task.CompletedTask;
-                },
-                OnTokenValidated = context =>
-                {
-                    // Custom logic after token validation
-                    return Task.CompletedTask;
-                },
-                OnAuthenticationFailed = context =>
-                {
-                    // Custom logic on authentication failure
-                    return Task.CompletedTask;
-                }
-            };
-        });
         services.AddAuthorization();
+        
+        // Register authentication services
+        services.AddScoped<ITokenService, TokenService>();
 
         return services;
     }

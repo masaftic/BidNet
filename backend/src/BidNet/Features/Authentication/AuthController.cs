@@ -1,11 +1,11 @@
-using BidNet.Features.Auth.Commands;
-using BidNet.Features.Auth.Models;
+using BidNet.Features.Authentication.Commands;
+using BidNet.Features.Authentication.Models;
 using BidNet.Shared.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BidNet.Features.Auth;
+namespace BidNet.Features.Authentication;
 
 [Route("api/[controller]")]
 public class AuthController : ApiController
@@ -32,9 +32,7 @@ public class AuthController : ApiController
     {
         var command = new LoginCommand(request.Email, request.Password);
         var result = await _mediator.Send(command);
-        return result.Match(
-            authResult => Ok(MapAuthResult(authResult)),
-            HandleErrors);
+        return result.Match(Ok, HandleErrors);
     }
 
     [HttpPost("refresh-token")]
@@ -43,21 +41,6 @@ public class AuthController : ApiController
     {
         var command = new RefreshTokenCommand(request.RefreshToken);
         var result = await _mediator.Send(command);
-        return result.Match(
-            authResult => Ok(new RefreshTokenResponse()
-            {
-                Token = authResult.Token,
-                RefreshToken = authResult.RefreshToken
-            }),
-            HandleErrors);
-    }
-
-    private LoginResponse MapAuthResult(AuthenticationResult authResult)
-    {
-        return new LoginResponse
-        {
-            Token = authResult.Token,
-            RefreshToken = authResult.RefreshToken
-        };
+        return result.Match(Ok, HandleErrors);
     }
 }

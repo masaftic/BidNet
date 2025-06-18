@@ -5,10 +5,13 @@ using ErrorOr;
 using System.Text.Json.Serialization;
 using BidNet.Shared;
 using Microsoft.AspNetCore.Diagnostics;
+using BidNet.Domain.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddProblemDetails(o =>
 {
     o.CustomizeProblemDetails = context =>
@@ -57,6 +60,12 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "BidNet API V1");
+        options.RoutePrefix = string.Empty; // Serve Swagger at the app's root
+    });
 }
 
 app.Use(async (ctx, next) =>
@@ -99,6 +108,7 @@ app.UseAuthorization();
 app.MapHub<BidHub>("/hubs/bid");
 
 app.MapControllers();
+
 
 app.Run();
 

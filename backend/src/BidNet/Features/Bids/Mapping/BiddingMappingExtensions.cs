@@ -12,7 +12,7 @@ public static class BiddingMappingExtensions
             Id = b.Id,
             AuctionId = b.AuctionId,
             UserId = b.UserId,
-            UserName = b.User.Username,
+            UserName = b.User.UserName,
             Amount = b.Amount,
             IsWinning = b.IsWinning,
             CreatedAt = b.CreatedAt
@@ -26,7 +26,7 @@ public static class BiddingMappingExtensions
             Id = bid.Id,
             AuctionId = bid.AuctionId,
             UserId = bid.UserId,
-            UserName = bid.User.Username,
+            UserName = bid.User.UserName,
             Amount = bid.Amount,
             IsWinning = bid.IsWinning,
             CreatedAt = bid.CreatedAt

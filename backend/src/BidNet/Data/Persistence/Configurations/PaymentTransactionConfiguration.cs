@@ -9,14 +9,6 @@ public class PaymentTransactionConfiguration : IEntityTypeConfiguration<PaymentT
     public void Configure(EntityTypeBuilder<PaymentTransaction> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id)
-            .HasConversion(x => x.Value, x => new PaymentTransactionId(x));
-        
-        builder.Property(x => x.UserId)
-            .HasConversion(x => x.Value, x => new UserId(x));
-
-        builder.Property(x => x.AuctionId)
-            .HasConversion(x => x.Value, x => new AuctionId(x));
 
         builder.Property(x => x.Amount)
             .HasPrecision(18, 2);

@@ -1,0 +1,47 @@
+using BidNet.Domain.Entities;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Linq.Expressions;
+
+namespace BidNet.Data.Persistence.Configurations;
+
+public class UserIdConverter : ValueConverter<UserId, Guid>
+{
+    public UserIdConverter() : base(v => v.Value, v => new UserId(v))
+    {
+    }
+}
+
+public class AuctionIdConverter : ValueConverter<AuctionId, Guid>
+{
+    public AuctionIdConverter() : base(v => v.Value, v => new AuctionId(v))
+    {
+    }
+}
+
+public class BidIdConverter : ValueConverter<BidId, Guid>
+{
+    public BidIdConverter() : base(v => v.Value, v => new BidId(v))
+    {
+    }
+}
+
+public class RefreshTokenIdConverter : ValueConverter<RefreshTokenId, Guid>
+{
+    public RefreshTokenIdConverter() : base(v => v.Value, v => new RefreshTokenId(v))
+    {
+    }
+}
+
+public class PaymentTransactionIdConverter : ValueConverter<PaymentTransactionId, Guid>
+{
+    public PaymentTransactionIdConverter() : base(v => v.Value, v => new PaymentTransactionId(v))
+    {
+    }
+}
+
+public class AuctionEventLogIdConverter : ValueConverter<AuctionEventLogId, Guid>
+{
+    public AuctionEventLogIdConverter() : base(v => v.Value, v => new AuctionEventLogId(v))
+    {
+    }
+}

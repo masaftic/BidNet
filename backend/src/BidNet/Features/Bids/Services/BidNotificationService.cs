@@ -49,7 +49,7 @@ public class BidNotificationService : IBidNotificationService
             var bidResponse = fullBid.ToBidDto();
             
             // Add user name to the response
-            bidResponse.UserName = fullBid.User.Username;
+            bidResponse.UserName = fullBid.User.UserName;
             
             // Notify all clients in the auction group
             await _hubContext.Clients.Group(bid.AuctionId.Value.ToString())
@@ -62,7 +62,7 @@ public class BidNotificationService : IBidNotificationService
                 CurrentPrice = fullBid.Amount,
                 LastBidTime = fullBid.CreatedAt,
                 LastBidUserId = fullBid.UserId.Value,
-                LastBidUserName = fullBid.User.Username,
+                LastBidUserName = fullBid.User.UserName,
                 BidCount = await _dbContext.Bids.CountAsync(b => b.AuctionId == fullBid.AuctionId)
             };
             
@@ -74,7 +74,7 @@ public class BidNotificationService : IBidNotificationService
                 "Bid notification sent for Auction {AuctionId}, Amount: {Amount}, User: {Username}", 
                 fullBid.AuctionId.Value, 
                 fullBid.Amount, 
-                fullBid.User.Username);
+                fullBid.User.UserName);
         }
         catch (Exception ex)
         {

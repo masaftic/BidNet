@@ -8,7 +8,7 @@ public readonly record struct RefreshTokenId(Guid Value)
 
 public class RefreshToken
 {
-    public RefreshTokenId Id { get; init; } = Guid.NewGuid();
+    public RefreshTokenId Id { get; init; }
     public UserId UserId { get; private set; }
     public User User { get; private set; } = null!;
     public string Token { get; private set; } = null!;
@@ -19,6 +19,8 @@ public class RefreshToken
 
     public RefreshToken(UserId userId, string token, DateTime expiresAt)
     {
+        Id = new RefreshTokenId(Guid.NewGuid());
+
         UserId = userId;
         Token = token;
         ExpiresAt = expiresAt;

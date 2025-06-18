@@ -9,8 +9,6 @@ public class AuctionConfiguration : IEntityTypeConfiguration<Auction>
     public void Configure(EntityTypeBuilder<Auction> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id)
-            .HasConversion(x => x.Value, x => new AuctionId(x));
 
         builder.Property(x => x.Title)
             .HasMaxLength(200)
