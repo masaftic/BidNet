@@ -4,6 +4,8 @@ public readonly record struct RefreshTokenId(Guid Value)
 {
     public static implicit operator Guid(RefreshTokenId id) => id.Value;
     public static implicit operator RefreshTokenId(Guid id) => new(id);
+
+    override public string ToString() => Value.ToString();
 }
 
 public class RefreshToken

@@ -71,7 +71,7 @@ public class BidNotificationService : IBidNotificationService
                 .SendAsync("AuctionUpdated", auctionUpdated);
             
             _logger.LogInformation(
-                "Bid notification sent for Auction {AuctionId}, Amount: {Amount}, User: {Username}", 
+                "Bid notification sent for Auction {AuctionId}, Amount: {Amount}, User: {UserName}", 
                 fullBid.AuctionId.Value, 
                 fullBid.Amount, 
                 fullBid.User.UserName);

@@ -10,7 +10,7 @@ public static class AuthMappingExtensions
         return new AuthResponse
         {
             UserId = user.Id,
-            Username = user.UserName!,
+            UserName = user.UserName!,
             Email = user.Email!,
             Roles = roles,
             AccessToken = accessToken,

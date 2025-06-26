@@ -13,8 +13,9 @@ public class DataSeeder(UserManager<User> userManager, RoleManager<IdentityRole<
         if ((await dbContext.Database.GetPendingMigrationsAsync()).Any())
         {
             await dbContext.Database.MigrateAsync();
-        }        string[] roleNames = [UserRoles.Admin, UserRoles.Seller, UserRoles.Bidder];
-        
+        }
+        string[] roleNames = [UserRoles.Admin, UserRoles.Seller, UserRoles.Bidder];
+
         foreach (var roleName in roleNames)
         {
             var exists = await roleManager.RoleExistsAsync(roleName);
@@ -29,13 +30,14 @@ public class DataSeeder(UserManager<User> userManager, RoleManager<IdentityRole<
             }
         }
 
+        var adminId = new UserId(Guid.NewGuid());
 
         // Seed initial data if necessary
         if (!await userManager.Users.AnyAsync())
         {
             var adminUser = new User
             {
-                Id = new(Guid.NewGuid()),
+                Id = adminId,
                 UserName = "admin",
                 Email = "admin@example.com"
             };
@@ -49,6 +51,22 @@ public class DataSeeder(UserManager<User> userManager, RoleManager<IdentityRole<
             {
                 throw new Exception($"Failed to create admin user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
             }
+        }
+
+        var sampleAuction = new Auction(
+            title: "Sample Auction",
+            description: "This is a sample auction for demonstration purposes.",
+            startDate: DateTime.UtcNow,
+            endDate: DateTime.UtcNow.AddDays(7),
+            startingPrice: 100.00m,
+            createdBy: adminId);
+
+        sampleAuction.Start();
+
+        if (!await dbContext.Auctions.AnyAsync(a => a.Title == sampleAuction.Title))
+        {
+            dbContext.Auctions.Add(sampleAuction);
+            await dbContext.SaveChangesAsync();
         }
     }
 }

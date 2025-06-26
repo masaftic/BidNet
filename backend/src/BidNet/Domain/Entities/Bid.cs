@@ -6,6 +6,8 @@ public readonly record struct BidId(Guid Value)
 {
     public static implicit operator Guid(BidId id) => id.Value;
     public static implicit operator BidId(Guid id) => new(id);
+
+    override public string ToString() => Value.ToString();
 }
 
 public class Bid

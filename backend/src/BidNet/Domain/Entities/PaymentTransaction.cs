@@ -7,6 +7,8 @@ public readonly record struct PaymentTransactionId(Guid Value)
 {
     public static implicit operator Guid(PaymentTransactionId id) => id.Value;
     public static implicit operator PaymentTransactionId(Guid id) => new(id);
+
+    override public string ToString() => Value.ToString();
 }
 
 public class PaymentTransaction

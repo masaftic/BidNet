@@ -55,7 +55,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, ErrorOr<AuthRes
         return new AuthResponse
         {
             UserId = user.Id,
-            Username = user.UserName!,
+            UserName = user.UserName!,
             Email = user.Email!,
             Roles = roles,
             AccessToken = authResult.AccessToken,

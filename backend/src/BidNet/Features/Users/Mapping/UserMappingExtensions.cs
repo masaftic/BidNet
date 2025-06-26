@@ -1,30 +1,27 @@
-// using BidNet.Domain.Entities;
-// using BidNet.Features.Users.Models;
+using BidNet.Domain.Entities;
+using BidNet.Features.Users.Models;
 
-// namespace BidNet.Features.Users.Mapping;
+namespace BidNet.Features.Users.Mapping;
 
-// public static class UserMappingExtensions
-// {
-//     public static IQueryable<UserDto> ToUserDto(this IQueryable<User> query)
-//     {
-//         return query.Select(u => new UserDto
-//         {
-//             Id = u.Id,
-//             Username = u.Username,
-//             Email = u.Email,
-//             Roles = u.Roles.ToArray(),
-//             CreatedAt = u.CreatedAt,
-//         });
-//     }
+public static class UserMappingExtensions
+{
+    public static IQueryable<UserDto> ToUserDto(this IQueryable<User> query)
+    {
+        return query.Select(u => new UserDto
+        {
+            Id = u.Id,
+            UserName = u.UserName,
+            Email = u.Email,
+        });
+    }
 
-//     public static UserDto ToUserDto(this User user)
-//     {
-//         return new UserDto
-//         {
-//             Id = user.Id,
-//             Username = user.Username,
-//             Email = user.Email,
-//             CreatedAt = user.CreatedAt,
-//         };
-//     } 
-// }
+    public static UserDto ToUserDto(this User user)
+    {
+        return new UserDto
+        {
+            Id = user.Id,
+            UserName = user.UserName,
+            Email = user.Email,
+        };
+    } 
+}

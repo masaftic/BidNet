@@ -7,6 +7,8 @@ public readonly record struct AuctionEventLogId(Guid Value)
 {
     public static implicit operator Guid(AuctionEventLogId id) => id.Value;
     public static implicit operator AuctionEventLogId(Guid id) => new(id);
+
+    override public string ToString() => Value.ToString();
 }
 
 public class AuctionEventLog

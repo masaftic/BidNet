@@ -21,7 +21,7 @@ public class AuthController : ApiController
     [AllowAnonymous]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var command = new RegisterCommand(request.Username, request.Email, request.Password, request.Role);
+        var command = new RegisterCommand(request.UserName, request.Email, request.Password);
         var result = await _mediator.Send(command);
         return result.Match(Ok, HandleErrors);
     }

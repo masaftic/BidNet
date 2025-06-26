@@ -12,13 +12,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<Bid> Bids { get; init; }
     public DbSet<Auction> Auctions { get; init; }
     public DbSet<RefreshToken> RefreshTokens { get; init; }
+    public DbSet<Wallet> Wallets { get; init; }
+    public DbSet<WalletTransaction> WalletTransactions { get; init; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
         builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
-        
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -26,7 +27,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         configurationBuilder
             .Properties<UserId>()
             .HaveConversion<UserIdConverter>();
-        
+
         configurationBuilder
             .Properties<AuctionId>()
             .HaveConversion<AuctionIdConverter>();
@@ -38,7 +39,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         configurationBuilder
             .Properties<RefreshTokenId>()
             .HaveConversion<RefreshTokenIdConverter>();
-        
+
         configurationBuilder
             .Properties<AuctionEventLogId>()
             .HaveConversion<AuctionEventLogIdConverter>();
@@ -46,6 +47,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         configurationBuilder
             .Properties<PaymentTransactionId>()
             .HaveConversion<PaymentTransactionIdConverter>();
+
+        configurationBuilder
+            .Properties<WalletId>()
+            .HaveConversion<WalletIdConverter>();
+
+        configurationBuilder
+            .Properties<WalletTransactionId>()
+            .HaveConversion<WalletTransactionIdConverter>();
     }
 }
 

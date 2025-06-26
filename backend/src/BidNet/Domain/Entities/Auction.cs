@@ -8,6 +8,8 @@ public readonly record struct AuctionId(Guid Value)
 {
     public static implicit operator Guid(AuctionId id) => id.Value;
     public static implicit operator AuctionId(Guid id) => new(id);
+
+    override public string ToString() => Value.ToString();
 }
 
 public class Auction
@@ -92,7 +94,11 @@ public class Auction
         CurrentPrice = currentPrice;
     }
 
-    // Start the auction
+
+    /// <summary>
+    /// Starts the auction
+    /// </summary>
+    /// <exception cref="InvalidOperationException"></exception>
     public void Start()
     {
         if (Status != AuctionStatus.Scheduled)

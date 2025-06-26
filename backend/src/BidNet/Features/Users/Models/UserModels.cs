@@ -13,7 +13,7 @@ public class UserDto
 
 public class UpdateProfileRequest
 {
-    public string Username { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string? CurrentPassword { get; set; }
     public string? NewPassword { get; set; }
@@ -22,7 +22,7 @@ public class UpdateProfileRequest
 public class UserSummaryResponse
 {
     public Guid Id { get; set; }
-    public string Username { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Roles { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }

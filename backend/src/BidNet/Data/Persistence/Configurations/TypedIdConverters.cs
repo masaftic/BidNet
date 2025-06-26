@@ -45,3 +45,17 @@ public class AuctionEventLogIdConverter : ValueConverter<AuctionEventLogId, Guid
     {
     }
 }
+
+public class WalletIdConverter : ValueConverter<WalletId, Guid>
+{
+    public WalletIdConverter() : base(v => v.Value, v => new WalletId(v))
+    {
+    }
+}
+
+public class WalletTransactionIdConverter : ValueConverter<WalletTransactionId, Guid>
+{
+    public WalletTransactionIdConverter() : base(v => v.Value, v => new WalletTransactionId(v))
+    {
+    }
+}
