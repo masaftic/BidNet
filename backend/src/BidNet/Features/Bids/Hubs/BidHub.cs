@@ -1,4 +1,3 @@
-using BidNet.Domain.Entities;
 using BidNet.Features.Bids.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;

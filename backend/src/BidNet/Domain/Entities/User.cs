@@ -1,5 +1,4 @@
 using Ardalis.GuardClauses;
-using BidNet.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 
 namespace BidNet.Domain.Entities;

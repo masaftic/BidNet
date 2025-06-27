@@ -1,6 +1,5 @@
 using BidNet.Data.Persistence;
 using BidNet.Domain.Entities;
-using BidNet.Domain.Enums;
 using BidNet.Features.Bids.Mapping;
 using BidNet.Features.Bids.Models;
 using BidNet.Features.Bids.Services;

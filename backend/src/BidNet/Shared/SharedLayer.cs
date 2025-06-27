@@ -1,6 +1,5 @@
 using BidNet.Shared.Behaviors;
 using FluentValidation;
-using MediatR;
 
 namespace BidNet.Shared;
 

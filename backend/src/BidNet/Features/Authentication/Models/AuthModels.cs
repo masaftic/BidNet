@@ -1,6 +1,3 @@
-using BidNet.Domain.Enums;
-using System.ComponentModel.DataAnnotations;
-
 namespace BidNet.Features.Authentication.Models;
 
 public class LoginRequest
