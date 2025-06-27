@@ -2,7 +2,6 @@ using BidNet.Features.Users.Commands;
 using BidNet.Features.Users.Models;
 using BidNet.Features.Users.Queries;
 using BidNet.Shared.Controllers;
-using BidNet.Shared.Services;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -58,6 +57,15 @@ public class UsersController(IMediator mediator) : ApiController
     public async Task<IActionResult> DeleteUser(Guid userId)
     {
         var command = new DeleteUserCommand(userId);
+        var result = await mediator.Send(command);
+        return result.Match(_ => NoContent(), HandleErrors);
+    }
+
+    [HttpPut("me/request-seller-role")]
+    [Authorize]
+    public async Task<IActionResult> RequestSellerRoleCommand()
+    {
+        var command = new RequestSellerRoleCommand();
         var result = await mediator.Send(command);
         return result.Match(_ => NoContent(), HandleErrors);
     }

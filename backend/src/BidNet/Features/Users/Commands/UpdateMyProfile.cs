@@ -5,7 +5,6 @@ using ErrorOr;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace BidNet.Features.Users.Commands;
 

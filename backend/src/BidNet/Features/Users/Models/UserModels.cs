@@ -1,5 +1,3 @@
-using BidNet.Domain.Enums;
-
 namespace BidNet.Features.Users.Models;
 
 public class UserDto
