@@ -5,14 +5,15 @@ using BidNet.Shared.Services;
 using BidNet.Domain.Entities;
 using BidNet.Features.Authentication.Models;
 using BidNet.Features.Authentication.Services;
+using BidNet.Features.Auctions.Services;
 using BidNet.Features.Wallets.Services;
+using BidNet.Shared.Abstractions.Storage;
+using BidNet.Shared.Infrastructure.Storage;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
-using System.Net;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
@@ -28,6 +29,30 @@ public static class DependencyInjection
         services.AddScoped<IBidNotificationService, BidNotificationService>();
         services.AddScoped<IWalletNotificationService, WalletNotificationService>();
         
+        // Add image storage
+        services.AddScoped<IImageStorage, FileSystemImageStorage>();
+        
+        // Add Hangfire services
+        services.AddHangfire(config => config
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(configuration.GetConnectionString("DefaultConnection"), new SqlServerStorageOptions
+            {
+                CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                QueuePollInterval = TimeSpan.Zero,
+                UseRecommendedIsolationLevel = true,
+                DisableGlobalLocks = true
+            }));
+            
+        // Add the processing server as IHostedService
+        services.AddHangfireServer();
+        
+        // Register the auction services
+        services.AddScoped<AuctionSchedulerService>();
+        services.AddScoped<AuctionImageService>();
+        
         services.AddPersistence(configuration);
         services.AddIdentityCore<User>(options =>
             { 
@@ -38,12 +63,11 @@ public static class DependencyInjection
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = false;
             })
-            .AddRoles<IdentityRole<UserId>>()
+            .AddRoles<UserRole>()
             .AddEntityFrameworkStores<AppDbContext>()
             .AddSignInManager<SignInManager<User>>()
             .AddUserManager<UserManager<User>>()
-            .AddRoleManager<RoleManager<IdentityRole<UserId>>>()
-            .AddEntityFrameworkStores<AppDbContext>()
+            .AddRoleManager<RoleManager<UserRole>>()
             .AddDefaultTokenProviders();        
         
         services.AddOptions<JwtSettings>()

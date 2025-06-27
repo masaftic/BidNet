@@ -19,8 +19,10 @@ public class Auction
     public string Description { get; private set; } = null!;
     public DateTime StartDate { get; private set; }
     public DateTime EndDate { get; private set; }
-    public decimal StartingPrice { get; private set; }
-    public decimal? CurrentPrice { get; private set; }
+    public decimal StartingPrice { get; private set; }    public decimal? CurrentPrice { get; private set; }
+    
+    private List<AuctionImage> _images = [];
+    public IReadOnlyCollection<AuctionImage> Images => _images.AsReadOnly();
 
     public UserId CreatedBy { get; private set; }
     public User CreatedByUser { get; private set; } = null!;
@@ -151,5 +153,73 @@ public class Auction
         _bids.Add(bid);
 
         return Result.Success;
+    }    // Methods for handling images
+    public AuctionImage AddImage(string imageUrl, bool isPrimary = false)
+    {
+        Guard.Against.NullOrEmpty(imageUrl, nameof(imageUrl));
+        
+        // Check if we already have this image
+        var existingImage = _images.FirstOrDefault(i => i.ImageUrl == imageUrl);
+        if (existingImage != null)
+        {
+            return existingImage;
+        }
+        
+        // Create new image
+        var image = new AuctionImage(Id, imageUrl, isPrimary);
+        
+        // If this is the first image or marked as primary
+        if (isPrimary || !_images.Any(i => i.IsPrimary))
+        {
+            // Reset any existing primary image
+            foreach (var img in _images.Where(i => i.IsPrimary))
+            {
+                img.SetAsPrimary(false);
+            }
+            
+            image.SetAsPrimary(true);
+        }
+        
+        _images.Add(image);
+        return image;
     }
+    
+    public bool RemoveImage(string imageUrl)
+    {
+        var image = _images.FirstOrDefault(i => i.ImageUrl == imageUrl);
+        if (image == null) return false;
+        
+        bool wasPrimary = image.IsPrimary;
+        bool result = _images.Remove(image);
+        
+        // If we removed the primary image, set a new one if available
+        if (result && wasPrimary && _images.Any())
+        {
+            _images.First().SetAsPrimary(true);
+        }
+        
+        return result;
+    }
+    
+    public void SetPrimaryImage(string imageUrl)
+    {
+        Guard.Against.NullOrEmpty(imageUrl, nameof(imageUrl));
+        
+        var image = _images.FirstOrDefault(i => i.ImageUrl == imageUrl);
+        if (image == null)
+        {
+            throw new ArgumentException("Image not found in this auction's images.", nameof(imageUrl));
+        }
+        
+        // Reset existing primary images
+        foreach (var img in _images.Where(i => i.IsPrimary))
+        {
+            img.SetAsPrimary(false);
+        }
+        
+        // Set the new primary image
+        image.SetAsPrimary(true);
+    }
+    
+    public AuctionImage? GetPrimaryImage() => _images.FirstOrDefault(i => i.IsPrimary);
 }

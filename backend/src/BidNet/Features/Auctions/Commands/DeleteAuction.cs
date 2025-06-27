@@ -1,4 +1,5 @@
 using BidNet.Data.Persistence;
+using BidNet.Domain.Entities;
 using ErrorOr;
 using FluentValidation;
 using MediatR;
@@ -9,14 +10,14 @@ public class DeleteAuctionCommandValidator : AbstractValidator<DeleteAuctionComm
 {
     public DeleteAuctionCommandValidator()
     {
-        RuleFor(x => x.Id)
+        RuleFor(x => x.Id.Value)
             .NotEmpty();
     }
 }
 
-public record DeleteAuctionCommand(Guid Id) : IRequest<ErrorOr<Unit>>;
+public record DeleteAuctionCommand(AuctionId Id) : IRequest<ErrorOr<Deleted>>;
 
-public class DeleteAuctionCommandHandler : IRequestHandler<DeleteAuctionCommand, ErrorOr<Unit>>
+public class DeleteAuctionCommandHandler : IRequestHandler<DeleteAuctionCommand, ErrorOr<Deleted>>
 {
     private readonly AppDbContext _dbContext;
 
@@ -25,7 +26,7 @@ public class DeleteAuctionCommandHandler : IRequestHandler<DeleteAuctionCommand,
         _dbContext = dbContext;
     }
 
-    public async Task<ErrorOr<Unit>> Handle(DeleteAuctionCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<Deleted>> Handle(DeleteAuctionCommand request, CancellationToken cancellationToken)
     {
         var auction = await _dbContext.Auctions.FindAsync(request.Id);
 
@@ -37,6 +38,6 @@ public class DeleteAuctionCommandHandler : IRequestHandler<DeleteAuctionCommand,
         _dbContext.Auctions.Remove(auction);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return Unit.Value;
+        return Result.Deleted;
     }
 }

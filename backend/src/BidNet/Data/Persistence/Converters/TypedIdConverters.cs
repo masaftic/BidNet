@@ -1,8 +1,7 @@
 using BidNet.Domain.Entities;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System.Linq.Expressions;
 
-namespace BidNet.Data.Persistence.Configurations;
+namespace BidNet.Data.Persistence.Converters;
 
 public class UserIdConverter : ValueConverter<UserId, Guid>
 {
@@ -56,6 +55,16 @@ public class WalletIdConverter : ValueConverter<WalletId, Guid>
 public class WalletTransactionIdConverter : ValueConverter<WalletTransactionId, Guid>
 {
     public WalletTransactionIdConverter() : base(v => v.Value, v => new WalletTransactionId(v))
+    {
+    }
+}
+
+public class AuctionImageIdConverter : ValueConverter<AuctionImageId, Guid>
+{
+    public AuctionImageIdConverter()
+        : base(
+            v => v.Value,
+            v => new AuctionImageId(v))
     {
     }
 }

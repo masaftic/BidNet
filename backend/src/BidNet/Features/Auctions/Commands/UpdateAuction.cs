@@ -49,7 +49,7 @@ public class UpdateAuctionCommandHandler : IRequestHandler<UpdateAuctionCommand,
             return Error.NotFound(description: "Auction not found.");
         }
 
-        if (auction.CreatedBy != _userService.UserId || !_userService.IsInRole("Admin"))
+        if (auction.CreatedBy != _userService.UserId)
         {
             return Error.Forbidden(description: "You do not have permission to update this auction.");
         }

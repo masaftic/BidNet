@@ -1,5 +1,4 @@
 using BidNet.Data.Persistence;
-using BidNet.Domain.Entities;
 using BidNet.Features.Auctions.Mapping;
 using BidNet.Features.Auctions.Models;
 using ErrorOr;

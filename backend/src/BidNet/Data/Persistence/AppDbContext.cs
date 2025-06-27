@@ -1,16 +1,16 @@
-using BidNet.Data.Persistence.Configurations;
+using BidNet.Data.Persistence.Converters;
 using BidNet.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BidNet.Data.Persistence;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<User, IdentityRole<UserId>, UserId>(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<User, UserRole, UserId>(options)
 {
     public DbSet<Bid> Bids { get; init; }
     public DbSet<Auction> Auctions { get; init; }
+    public DbSet<AuctionImage> AuctionImages { get; init; }
+    public DbSet<AuctionEventLog> AuctionEventLogs { get; init; }
     public DbSet<RefreshToken> RefreshTokens { get; init; }
     public DbSet<Wallet> Wallets { get; init; }
     public DbSet<WalletTransaction> WalletTransactions { get; init; }
@@ -31,6 +31,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         configurationBuilder
             .Properties<AuctionId>()
             .HaveConversion<AuctionIdConverter>();
+            
+        configurationBuilder
+            .Properties<AuctionImageId>()
+            .HaveConversion<AuctionImageIdConverter>();
 
         configurationBuilder
             .Properties<BidId>()

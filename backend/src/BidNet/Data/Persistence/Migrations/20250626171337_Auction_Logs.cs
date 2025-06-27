@@ -1,12 +1,11 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace BidNet.Data.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class Init_Migration : Migration
+    public partial class Auction_Logs : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -250,7 +249,7 @@ namespace BidNet.Data.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AuctionEventLog",
+                name: "AuctionEventLogs",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -261,9 +260,9 @@ namespace BidNet.Data.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AuctionEventLog", x => x.Id);
+                    table.PrimaryKey("PK_AuctionEventLogs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AuctionEventLog_Auctions_AuctionId",
+                        name: "FK_AuctionEventLogs_Auctions_AuctionId",
                         column: x => x.AuctionId,
                         principalTable: "Auctions",
                         principalColumn: "Id",
@@ -366,8 +365,8 @@ namespace BidNet.Data.Persistence.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AuctionEventLog_AuctionId",
-                table: "AuctionEventLog",
+                name: "IX_AuctionEventLogs_AuctionId",
+                table: "AuctionEventLogs",
                 column: "AuctionId");
 
             migrationBuilder.CreateIndex(
@@ -430,7 +429,7 @@ namespace BidNet.Data.Persistence.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "AuctionEventLog");
+                name: "AuctionEventLogs");
 
             migrationBuilder.DropTable(
                 name: "Bids");

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BidNet.Data.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250626104213_Init_Migration")]
-    partial class Init_Migration
+    [Migration("20250626171337_Auction_Logs")]
+    partial class Auction_Logs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -99,7 +99,7 @@ namespace BidNet.Data.Persistence.Migrations
 
                     b.HasIndex("AuctionId");
 
-                    b.ToTable("AuctionEventLog");
+                    b.ToTable("AuctionEventLogs");
                 });
 
             modelBuilder.Entity("BidNet.Domain.Entities.Bid", b =>

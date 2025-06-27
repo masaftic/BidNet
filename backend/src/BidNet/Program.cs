@@ -1,11 +1,14 @@
 using BidNet;
 using BidNet.Data.Persistence;
+using BidNet.Features.Auctions.Services;
 using BidNet.Features.Bids.Hubs;
 using BidNet.Features.Wallets.Hubs;
 using BidNet.Shared;
 using ErrorOr;
+using Hangfire;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerUI;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,7 +36,22 @@ if (app.Environment.IsDevelopment())
 }
 
 ConfigureMiddleware(app);
+
+// Configure Hangfire Dashboard 
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    
+});
+
 ConfigureEndpoints(app);
+
+// Start the auction scheduler
+using (var scope = app.Services.CreateScope())
+{
+    var auctionScheduler = scope.ServiceProvider.GetRequiredService<AuctionSchedulerService>();
+    auctionScheduler.ScheduleAllPendingAuctions();
+    Console.WriteLine("Auction scheduler started");
+}
 
 app.Run();
 
@@ -86,7 +104,7 @@ static void ConfigureProblemDetails(IServiceCollection services)
                 $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
             
             context.ProblemDetails.Extensions.TryAdd("traceId", context.HttpContext.TraceIdentifier);
-            context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.Request.Headers["Request-Id"].ToString());
+            context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.Request.Headers.RequestId.ToString());
 
             if (context.HttpContext.Items["errors"] is List<Error> errors)
             {
@@ -139,21 +157,25 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
         options.RoutePrefix = string.Empty; // Serve Swagger at the app's root
         options.EnablePersistAuthorization(); // Persist authorization data between refreshes
         options.DisplayRequestDuration(); // Show how long requests take
-        options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None); // Collapse documentation by default
+        options.DocExpansion(DocExpansion.None); // Collapse documentation by default
     });
 }
 
 static void ConfigureMiddleware(WebApplication app)
 {
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+
     // Request logging middleware
     app.Use(async (ctx, next) =>
     {
-        Console.WriteLine(ctx.Request.Method);
-        Console.WriteLine(ctx.Request.Path);
+        logger.LogInformation("Handling Request {Method} {Path}", ctx.Request.Method, ctx.Request.Path);
         await next();
     });
     
     app.UseHttpsRedirection();
+    
+    // Static files for images
+    app.UseStaticFiles();
     
     // Exception handling
     app.UseExceptionHandler(o =>

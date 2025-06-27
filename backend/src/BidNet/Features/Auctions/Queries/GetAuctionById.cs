@@ -18,7 +18,7 @@ public class GetAuctionByIdQueryValidator : AbstractValidator<GetAuctionByIdQuer
     }
 }
 
-public record GetAuctionByIdQuery(Guid Id) : IRequest<ErrorOr<AuctionDto>>;
+public record GetAuctionByIdQuery(AuctionId Id) : IRequest<ErrorOr<AuctionDto>>;
 
 public class GetAuctionByIdQueryHandler : IRequestHandler<GetAuctionByIdQuery, ErrorOr<AuctionDto>>
 {
@@ -34,8 +34,9 @@ public class GetAuctionByIdQueryHandler : IRequestHandler<GetAuctionByIdQuery, E
         var auction = await _dbContext
             .Auctions
             .AsNoTracking()
+            .Where(a => a.Id == request.Id)
             .ToAuctionDto()
-            .FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken: cancellationToken);
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (auction == null)
         {

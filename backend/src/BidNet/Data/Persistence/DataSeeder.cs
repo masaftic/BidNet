@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BidNet.Data.Persistence;
 
-public class DataSeeder(UserManager<User> userManager, RoleManager<IdentityRole<UserId>> roleManager, AppDbContext dbContext)
+public class DataSeeder(UserManager<User> userManager, RoleManager<UserRole> roleManager, AppDbContext dbContext)
 {
     public async Task SeedAsync()
     {
@@ -30,10 +30,11 @@ public class DataSeeder(UserManager<User> userManager, RoleManager<IdentityRole<
             }
         }
 
-        var adminId = new UserId(Guid.NewGuid());
+        var admin = await userManager.FindByNameAsync("admin");
+        var adminId = admin?.Id ?? new(Guid.NewGuid());
 
         // Seed initial data if necessary
-        if (!await userManager.Users.AnyAsync())
+        if (admin is null)
         {
             var adminUser = new User
             {
@@ -56,17 +57,14 @@ public class DataSeeder(UserManager<User> userManager, RoleManager<IdentityRole<
         var sampleAuction = new Auction(
             title: "Sample Auction",
             description: "This is a sample auction for demonstration purposes.",
-            startDate: DateTime.UtcNow,
+            startDate: DateTime.UtcNow.AddSeconds(20),
             endDate: DateTime.UtcNow.AddDays(7),
             startingPrice: 100.00m,
             createdBy: adminId);
 
         sampleAuction.Start();
 
-        if (!await dbContext.Auctions.AnyAsync(a => a.Title == sampleAuction.Title))
-        {
-            dbContext.Auctions.Add(sampleAuction);
-            await dbContext.SaveChangesAsync();
-        }
+        dbContext.Auctions.Add(sampleAuction);
+        await dbContext.SaveChangesAsync();
     }
 }
