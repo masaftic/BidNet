@@ -1,0 +1,62 @@
+<div class="flex justify-center items-center bg-gray-100 min-h-screen">
+  <div class="bg-white shadow-lg p-8 rounded-lg w-full max-w-md">
+    <h1 class="mb-6 font-bold text-blue-600 text-3xl text-center">BidNet</h1>
+    <h2 class="mb-6 font-semibold text-2xl text-center">Sign In</h2>
+
+    <div *ngIf="errorMessage" class="bg-red-100 mb-4 px-4 py-3 border border-red-400 rounded text-red-700">
+      {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+      <div>
+        <label for="email" class="block font-medium text-gray-700 text-sm">Email</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="block shadow-sm mt-1 px-3 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-blue-500 w-full"
+          placeholder="your@email.com"
+        />
+        <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="mt-1 text-red-500 text-sm">
+          <span *ngIf="loginForm.get('email')?.errors?.['required']">Email is required</span>
+          <span *ngIf="loginForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+        </div>
+      </div>
+
+      <div>
+        <label for="password" class="block font-medium text-gray-700 text-sm">Password</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="block shadow-sm mt-1 px-3 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-blue-500 w-full"
+          placeholder="******"
+        />
+        <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="mt-1 text-red-500 text-sm">
+          <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required</span>
+          <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</span>
+        </div>
+      </div>
+
+      <div>
+        <app-button
+          type="submit"
+          [disabled]="loginForm.invalid || isLoading"
+          [loading]="isLoading"
+          variant="primary"
+          size="md"
+          class="w-full"
+        >
+          Sign In
+        </app-button>
+      </div>
+    </form>
+
+    <div class="mt-6 text-center">
+      <p class="text-sm">
+        Don't have an account?
+        <a routerLink="/register" class="font-medium text-blue-600 hover:text-blue-500">Sign up</a>
+      </p>
+    </div>
+  </div>
+</div>
