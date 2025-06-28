@@ -28,7 +28,7 @@ public class UsersController(IMediator mediator) : ApiController
             request.UserName,
             request.Email,
             request.CurrentPassword,
-            request.CurrentPassword);
+            request.NewPassword);
 
         var result = await mediator.Send(command);
         return result.Match(Ok, HandleErrors);
