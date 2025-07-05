@@ -1,0 +1,172 @@
+<div class="bg-gray-100 min-h-screen">
+  <app-navbar />
+
+  <main class="mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-7xl">
+    @if (isLoading()) {
+    <div class="flex justify-center my-12">
+      <div class="border-4 border-t-transparent border-blue-600 rounded-full w-12 h-12 animate-spin"></div>
+    </div>
+    } @else if (auction()) {
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <!-- Auction header -->
+      <div class="flex md:flex-row flex-col">
+        <!-- Image Gallery -->
+        <div class="w-full md:w-1/2">
+          <div class="relative h-64 md:h-full">
+            @if (selectedImage()) {
+            <img [src]="getImageUrl(selectedImage()!.imageUrl)" alt="{{ auction()!.title }}"
+              class="w-full h-full object-cover" />
+            } @else if (auction()!.images.length > 0) {
+            <img [src]="getImageUrl(auction()!.images[0].imageUrl)" alt="{{ auction()!.title }}"
+              class="w-full h-full object-cover" />
+            } @else {
+            <div class="flex justify-center items-center bg-gray-200 w-full h-full">
+              <span class="text-gray-500">No image</span>
+            </div>
+            }
+          </div>
+
+          @if (auction()!.images.length > 1) {
+          <div class="flex space-x-2 p-2 overflow-x-auto">
+            @for (image of auction()!.images; track image.id) {
+            <img [src]="getImageUrl(image.imageUrl)" alt="Thumbnail"
+              class="border-2 w-16 h-16 object-cover cursor-pointer"
+              [class.border-blue-500]="selectedImage()?.id === image.id"
+              [class.border-transparent]="selectedImage()?.id !== image.id" (click)="selectedImage.set(image)" />
+            }
+          </div>
+          }
+        </div>
+
+        <!-- Auction Info -->
+        <div class="p-6 w-full md:w-1/2">
+          <div class="flex justify-between items-start">
+            <h1 class="font-bold text-gray-900 text-2xl">{{ auction()!.title }}</h1>
+            <span class="px-2 py-1 rounded-full font-semibold text-xs"
+              [ngClass]="isAuctionActive() ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+              {{ isAuctionActive() ? 'Active' : 'Ended' }}
+            </span>
+          </div>
+
+          <div class="mt-4">
+            <h2 class="font-medium text-gray-900 text-lg">Description</h2>
+            <p class="mt-2 text-gray-600">{{ auction()!.description }}</p>
+          </div>
+
+          <div class="mt-6 pt-4 border-gray-200 border-t">
+            <div class="flex justify-between">
+              <div>
+                <p class="text-gray-500 text-sm">Current bid</p>
+                <p class="font-bold text-gray-900 text-2xl">
+                  {{ auction()!.currentPrice || auction()!.startingPrice | currency }}
+                </p>
+              </div>
+              <div class="text-right">
+                <p class="text-gray-500 text-sm">Auction ends</p>
+                <p class="font-medium text-sm">
+                  {{ formatDate(auction()!.endDate) }}
+                  <span class="block text-xs">({{ getTimeRemaining(auction()!.endDate) }})</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-6">
+              @if (isLoggedIn() && isAuctionActive()) {
+              <app-button variant="primary" class="w-full" (click)="scrollToBidSection()">
+                Place Bid Now
+              </app-button>
+              } @else if (!isLoggedIn()) {
+              <div class="bg-yellow-50 p-4 rounded-md">
+                <p class="text-yellow-800 text-center">
+                  Please <a routerLink="/login" class="font-medium underline">sign in</a> to view bid details and place
+                  bids.
+                </p>
+              </div>
+              } @else {
+              <div class="bg-gray-50 p-4 rounded-md">
+                <p class="text-gray-800 text-center">
+                  This auction has ended.
+                </p>
+              </div>
+              }
+            </div>
+
+            @if (errorMessage()) {
+            <div class="bg-red-50 mt-4 p-4 rounded-md">
+              <p class="text-red-800">{{ errorMessage() }}</p>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Seller info -->
+      <div class="mt-[5rem] p-6 border-gray-200 border-t">
+        <h2 class="font-medium text-gray-900 text-lg">Auction Information</h2>
+        <div class="gap-4 grid grid-cols-1 md:grid-cols-2 mt-2">
+          <div>
+            <p class="text-gray-500 text-sm">Starting price</p>
+            <p class="font-medium">{{ auction()!.startingPrice | currency }}</p>
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">Start date</p>
+            <p class="font-medium">{{ formatDate(auction()!.startDate) }}</p>
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">End date</p>
+            <p class="font-medium">{{ formatDate(auction()!.endDate) }}</p>
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">Auction ID</p>
+            <p class="font-medium">{{ auction()!.id }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bid History Component with Place Bid form -->
+      <div id="place-bid-section" class="border-gray-200 border-t">
+        <div class="bg-gray-50 px-6 py-4">
+          <h2 class="font-medium text-gray-900 text-lg">
+            @if (isAuctionActive()) {
+            Place Your Bid
+            } @else {
+            Auction Bids
+            }
+          </h2>
+          @if (isAuctionActive() && isLoggedIn()) {
+          <p class="mt-1 text-gray-500 text-sm">Enter your bid amount below to participate in this auction</p>
+          }
+        </div>
+        <app-auction-bids [auctionId]="auction()!.id" [isAuctionActive]="isAuctionActive()">
+        </app-auction-bids>
+      </div>
+    </div>
+
+    <div class="flex justify-between mt-6">
+      <app-button routerLink="/auctions" variant="outline">
+        Back to Auctions
+      </app-button>
+
+      @if (isCreator()) {
+      <div class="space-x-2">
+        <app-button [routerLink]="['/auctions', auction()!.id, 'edit']" variant="outline">
+          Edit Auction
+        </app-button>
+
+        <app-button variant="danger" [loading]="isDeleting()" (clicked)="deleteAuction()">
+          Delete Auction
+        </app-button>
+      </div>
+      }
+    </div>
+    } @else {
+    <div class="bg-white shadow p-6 rounded-lg text-center">
+      <h2 class="font-medium text-gray-900 text-lg">Auction not found</h2>
+      <p class="mt-2">The auction you're looking for doesn't exist or has been removed.</p>
+      <div class="mt-4">
+        <app-button routerLink="/auctions" variant="outline">Back to Auctions</app-button>
+      </div>
+    </div>
+    }
+  </main>
+</div>

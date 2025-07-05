@@ -1,0 +1,111 @@
+<div class="bg-gray-100 min-h-screen">
+  <app-navbar></app-navbar>
+
+  <main class="mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-7xl">
+    <div class="flex sm:flex-row flex-col justify-between items-start sm:items-center gap-4 mb-6">
+      <h1 class="font-semibold text-gray-900 text-2xl">Auctions</h1>
+      <app-button routerLink="/auctions/create" variant="primary">
+        Create New Auction
+      </app-button>
+
+    </div>
+
+    <!-- Search and Filtering -->
+    <div class="bg-white shadow mb-6 p-4 rounded-lg">
+      <div class="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <label for="search" class="block font-medium text-gray-700 text-sm">Search</label>
+          <input type="text" id="search" [formControl]="searchControl"
+            class="block shadow-sm mt-1 px-3 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-blue-500 w-full"
+            placeholder="Search auctions..." />
+        </div>
+        <div>
+          <label for="minPrice" class="block font-medium text-gray-700 text-sm">Min Price</label>
+          <input type="number" id="minPrice" [(ngModel)]="filters.minPrice" (change)="applyFilters()"
+            class="block shadow-sm mt-1 px-3 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-blue-500 w-full" />
+        </div>
+        <div>
+          <label for="maxPrice" class="block font-medium text-gray-700 text-sm">Max Price</label>
+          <input type="number" id="maxPrice" [(ngModel)]="filters.maxPrice" (change)="applyFilters()"
+            class="block shadow-sm mt-1 px-3 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-blue-500 w-full" />
+        </div>
+        <div class="flex items-center pt-7">
+          <input type="checkbox" id="activeOnly" [(ngModel)]="filters.onlyActive" (change)="applyFilters()"
+            class="border-gray-300 rounded focus:ring-blue-500 w-4 h-4 text-blue-600" />
+          <label for="activeOnly" class="block ml-2 text-gray-900 text-sm">Active Auctions Only</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    @if (isLoading()) {
+    <div class="flex justify-center my-12">
+      <div class="border-4 border-t-transparent border-blue-600 rounded-full w-12 h-12 animate-spin"></div>
+    </div>
+    } @else if (auctions().length === 0) {
+    <div class="bg-white shadow p-6 rounded-lg text-center">
+      <h2 class="font-medium text-gray-900 text-lg">No auctions found</h2>
+      <p class="mt-1 text-gray-500">Try adjusting your search criteria</p>
+    </div>
+    } @else {
+    <!-- Auctions Grid -->
+
+    <div class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      @for (auction of auctions(); track auction.id) {
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+          @if (auction.images.length > 0) {
+            @if (getPrimaryImage(auction)) {
+              <img [src]="getImageUrl(getPrimaryImage(auction)!.imageUrl)" alt="{{ auction.title }}" class="w-full h-48 object-cover" />
+            } @else {
+              <img [src]="getImageUrl(auction.images[0].imageUrl)" alt="{{ auction.title }}" class="w-full h-48 object-cover" />
+            }
+          } @else {
+            <div class="flex justify-center items-center bg-gray-200 w-full h-48">
+              <span class="text-gray-500">No image</span>
+            </div>
+          }
+
+          <div class="p-4">
+            <h3 class="font-medium text-gray-900 text-lg truncate">{{ auction.title }}</h3>
+            <p class="mt-1 text-gray-600 text-sm line-clamp-2">{{ auction.description }}</p>
+
+            <div class="flex justify-between mt-4">
+              <div>
+                <p class="text-gray-500 text-sm">Current bid</p>
+                <p class="font-semibold text-lg">{{ auction.currentPrice || auction.startingPrice | currency }}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-gray-500 text-sm">Ends in</p>
+                <p class="font-medium text-sm">{{ getTimeRemaining(auction.endDate) }}</p>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <app-button [routerLink]="['/auctions', auction.id]" variant="primary" class="w-full">
+                View Details
+              </app-button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex justify-center mt-8">
+      <div class="flex space-x-2">
+        <app-button [disabled]="currentPage() === 0" (clicked)="previousPage()" variant="outline" size="sm">
+          Previous
+        </app-button>
+
+        <span class="px-4 py-2 text-gray-700">
+          Page {{ currentPage() + 1 }} of {{ totalPages() }}
+        </span>
+
+        <app-button [disabled]="currentPage() + 1 >= totalPages()" (clicked)="nextPage()" variant="outline" size="sm">
+          Next
+        </app-button>
+      </div>
+    </div>
+    }
+  </main>
+</div>

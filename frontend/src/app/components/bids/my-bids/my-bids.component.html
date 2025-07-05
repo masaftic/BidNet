@@ -1,0 +1,95 @@
+<div class="bg-gray-100 min-h-screen">
+  <app-navbar></app-navbar>
+
+  <div class="mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-7xl">
+    <h1 class="mb-4 font-semibold text-gray-900 text-2xl">My Bids</h1>
+
+    @if (isLoading()) {
+      <div class="flex justify-center my-8">
+        <div class="border-2 border-t-transparent border-blue-600 rounded-full w-8 h-8 animate-spin"></div>
+      </div>
+    } @else if (errorMessage()) {
+      <div class="bg-red-50 p-4 border border-red-200 rounded-md">
+        <p class="text-red-700">{{ errorMessage() }}</p>
+        <div class="mt-2">
+          <app-button (clicked)="loadMyBids()" variant="outline" class="mr-2">
+            Try Again
+          </app-button>
+          <app-button routerLink="/auctions" variant="primary">
+            Browse Auctions
+          </app-button>
+        </div>
+      </div>
+    } @else if (!userBids() || userBids()!.bids.length === 0) {
+      <div class="bg-white shadow p-6 rounded-lg text-center">
+        <h2 class="font-medium text-gray-900 text-lg">No bids yet</h2>
+        <p class="mt-1 text-gray-500">You haven't placed any bids on auctions</p>
+        <div class="mt-4">
+          <app-button routerLink="/auctions" variant="primary">Browse Auctions</app-button>
+        </div>
+      </div>
+    } @else {
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-4 sm:px-6 py-5 border-gray-200 border-b">
+          <h3 class="font-medium text-gray-900 text-lg leading-6">Your Bid History</h3>
+          <p class="mt-1 max-w-2xl text-gray-500 text-sm">
+            All bids you've placed on various auctions
+          </p>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="divide-y divide-gray-200 min-w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 font-medium text-gray-500 text-xs text-left uppercase tracking-wider">Auction</th>
+                <th scope="col" class="px-6 py-3 font-medium text-gray-500 text-xs text-left uppercase tracking-wider">Bid Amount</th>
+                <th scope="col" class="px-6 py-3 font-medium text-gray-500 text-xs text-left uppercase tracking-wider">Date</th>
+                <th scope="col" class="px-6 py-3 font-medium text-gray-500 text-xs text-left uppercase tracking-wider">Status</th>
+                <th scope="col" class="px-6 py-3 font-medium text-gray-500 text-xs text-left uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              @for (bid of userBids()!.bids; track bid.id) {
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div>
+                        <div class="font-medium text-gray-900 text-sm">
+                          Auction #{{ bid.auctionId | slice:0:8 }}...
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="font-medium text-gray-900 text-sm">{{ bid.amount | currency }}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-gray-900 text-sm">{{ formatDate(bid.createdAt) }}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex px-2 py-1 rounded-full font-semibold text-xs leading-5"
+                          [ngClass]="getBidStatusClass(bid)">
+                      {{ getBidStatusLabel(bid) }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-sm whitespace-nowrap">
+                    <a [routerLink]="['/auctions', bid.auctionId]"
+                      class="font-medium text-blue-600 hover:text-blue-900">
+                      View Auction
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <app-button routerLink="/auctions" variant="outline">
+          Browse More Auctions
+        </app-button>
+      </div>
+    }
+  </div>
+</div>

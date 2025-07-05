@@ -1,9 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonComponent } from '../button/button.component';
 import { AuthService } from '../../../services/auth.service';
 import { AsyncPipe } from '@angular/common';
+import { User } from '../../../models/user.model';
 
 @Component({
   selector: 'app-navbar',
@@ -49,10 +50,10 @@ import { AsyncPipe } from '@angular/common';
           </div>
 
           <div class="flex items-center">
-            @if (authService.currentUser$ | async; as user) {
+            @if (currentUser()) {
               <div class="flex items-center space-x-4">
                 <span class="text-gray-700">
-                  Welcome, {{user.userName}}!
+                  Welcome, {{currentUser()!.userName}}!
                 </span>
                 <div class="hidden md:block">
                   <app-button
@@ -124,7 +125,7 @@ import { AsyncPipe } from '@angular/common';
             >
               My Bids
             </a>
-            @if (authService.currentUser$ | async) {
+            @if (currentUser()) {
               <div class="border-t border-gray-200 pt-4 pb-3">
                 <div class="pl-3 pr-4 py-2">
                   <app-button
@@ -144,9 +145,19 @@ import { AsyncPipe } from '@angular/common';
     </header>
   `
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit {
   authService = inject(AuthService);
   isMobileMenuOpen = signal(false);
+
+  currentUser = signal<User | null>(null);
+
+  ngOnInit(): void {
+    this.authService.currentUser$.subscribe({
+      next: (user) => {
+        this.currentUser.set(user);
+      }
+    })
+  }
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen.update(state => !state);

@@ -1,0 +1,122 @@
+<div class="bg-white shadow mt-6 rounded-lg">
+  <div class="px-4 sm:px-6 py-5 border-gray-200 border-b">
+    <h3 class="font-medium text-gray-900 text-lg leading-6">Bid History</h3>
+    <p class="mt-1 text-gray-500 text-sm">
+      Complete bidding history for this auction
+    </p>
+  </div>
+
+  <div>
+    @if (isLoading()) {
+      <div class="flex justify-center my-8">
+        <div class="border-2 border-t-transparent border-blue-600 rounded-full w-8 h-8 animate-spin"></div>
+      </div>
+    } @else if (bids().bidHistory.length === 0) {
+      <div class="px-4 sm:px-6 py-8 text-center">
+        <p class="text-gray-500">No bids have been placed yet</p>
+        @if (isLoggedIn() && isAuctionActive()) {
+          <div class="mt-4">
+            <p class="font-medium text-gray-600 text-sm">Be the first to place a bid!</p>
+
+            <div class="mx-auto mt-6 max-w-md">
+              <form [formGroup]="bidForm" (ngSubmit)="placeBid()" class="flex flex-col space-y-3">
+                <div>
+                  <label for="bid-amount" class="block mb-1 font-medium text-gray-700 text-sm text-left">Your Bid Amount</label>
+                  <input
+                    id="bid-amount"
+                    type="number"
+                    formControlName="amount"
+                    class="block shadow-sm px-3 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-blue-500 w-full"
+                    [placeholder]="'Min: ' + getMinimumBid() + '$'"
+                    [min]="getMinimumBid()"
+                    step="0.01"
+                  />
+                  @if (bidForm.get('amount')?.invalid && (bidForm.get('amount')?.dirty || bidForm.get('amount')?.touched)) {
+                    <p class="mt-1 text-red-600 text-sm text-left">
+                      Bid must be at least {{ getMinimumBid() | currency }}
+                    </p>
+                  }
+                </div>
+                <app-button
+                  type="submit"
+                  [disabled]="bidForm.invalid || isSubmitting()"
+                  [loading]="isSubmitting()"
+                  variant="primary"
+                >
+                  Place First Bid
+                </app-button>
+              </form>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <ul class="divide-y divide-gray-200">
+        @for (bid of bids().bidHistory; track bid.id) {
+          <li class="flex justify-between items-center px-4 sm:px-6 py-3"
+            [class]="bid.isWinning ? 'bg-green-50' : ''">
+            <div>
+              <div class="flex items-center">
+                <span class="font-medium text-gray-900">{{ bid.userName }}</span>
+                @if (bid.isWinning) {
+                  <span class="inline-flex items-center bg-green-100 ml-2 px-2.5 py-0.5 rounded-full font-medium text-green-800 text-xs">
+                    <svg class="mr-1.5 -ml-0.5 w-2 h-2 text-green-400" fill="currentColor" viewBox="0 0 8 8">
+                      <circle cx="4" cy="4" r="3" />
+                    </svg>
+                    Winning
+                  </span>
+                }
+              </div>
+              <p class="text-gray-500 text-sm">{{ formatDate(bid.createdAt) }}</p>
+            </div>
+            <div>
+              <span class="font-semibold text-gray-900 text-lg">{{ bid.amount | currency }}</span>
+            </div>
+          </li>
+        }
+      </ul>
+
+      @if (isLoggedIn() && isAuctionActive()) {
+        <div class="px-4 sm:px-6 py-3 border-gray-200 border-t">
+          <form [formGroup]="bidForm" (ngSubmit)="placeBid()" class="flex space-x-2">
+            <div class="flex-1">
+              <input
+                type="number"
+                formControlName="amount"
+                class="block shadow-sm px-3 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-blue-500 w-full"
+                [placeholder]="'Min: ' + getMinimumBid() + '$'"
+                [min]="getMinimumBid()"
+                step="0.01"
+              />
+              @if (bidForm.get('amount')?.invalid && (bidForm.get('amount')?.dirty || bidForm.get('amount')?.touched)) {
+                <p class="mt-1 text-red-600 text-sm">
+                  Bid must be at least {{ getMinimumBid() | currency }}
+                </p>
+              }
+            </div>
+            <app-button
+              type="submit"
+              [disabled]="bidForm.invalid || isSubmitting()"
+              [loading]="isSubmitting()"
+              variant="primary"
+            >
+              Place Bid
+            </app-button>
+          </form>
+        </div>
+      }
+    }
+  </div>
+
+  @if (errorMessage()) {
+    <div class="bg-red-50 px-4 sm:px-6 py-3">
+      <p class="text-red-800">{{ errorMessage() }}</p>
+    </div>
+  }
+
+  @if (successMessage()) {
+    <div class="bg-green-50 px-4 sm:px-6 py-3">
+      <p class="text-green-800">{{ successMessage() }}</p>
+    </div>
+  }
+</div>

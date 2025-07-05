@@ -7,6 +7,12 @@ import { AuthResponse, AuthResponseWithUser, LoginRequest, RegisterRequest, User
   providedIn: 'root'
 })
 export class AuthService {
+  setRefreshToken(refreshToken: string) {
+    localStorage.setItem(this.refreshTokenKey, refreshToken);
+  }
+  setAccessToken(newToken: string) {
+    localStorage.setItem(this.tokenKey, newToken);
+  }
   private apiUrl = 'http://localhost:5000/api';
   private tokenKey = 'auth_token';
   private refreshTokenKey = 'refresh_token';
@@ -38,7 +44,7 @@ export class AuthService {
       throw new Error('No refresh token available');
     }
 
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/refresh`, { refreshToken })
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/refresh-token`, { refreshToken })
       .pipe(
         tap(response => this.setSession(response))
       );
@@ -52,10 +58,10 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    return !!this.getAccessToken();
   }
 
-  getToken(): string | null {
+  getAccessToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
 
@@ -73,11 +79,13 @@ export class AuthService {
     if (user && Object.keys(user).length > 0) {
       localStorage.setItem(this.userKey, JSON.stringify(user));
       this.currentUserSubject.next(user as User);
+    } else {
+
     }
   }
 
 
-  private getUserFromStorage(): User | null {
+  getUserFromStorage(): User | null {
     const userJson = localStorage.getItem(this.userKey);
     return userJson ? JSON.parse(userJson) : null;
   }

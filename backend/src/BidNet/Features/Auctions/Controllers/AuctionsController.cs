@@ -125,9 +125,13 @@ public class AuctionsController : ApiController
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAuctionsList()
+    public async Task<IActionResult> GetAuctionsList(int pageIndex = 0, int pageSize = 10)
     {
-        var query = new GetAuctionsListQuery();
+        var query = new GetAuctionsListQuery
+        {
+            PageIndex = pageIndex,
+            PageSize = pageSize
+        };
         var result = await _mediator.Send(query);
         return result.Match(Ok, HandleErrors);
     }

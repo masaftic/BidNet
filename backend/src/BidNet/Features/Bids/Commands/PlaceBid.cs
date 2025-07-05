@@ -26,6 +26,7 @@ public class PlaceBidCommandValidator : AbstractValidator<PlaceBidCommand>
 
 public record PlaceBidCommand(AuctionId AuctionId, decimal Amount) : IRequest<ErrorOr<BidDto>>;
 
+
 public class PlaceBidCommandHandler : IRequestHandler<PlaceBidCommand, ErrorOr<BidDto>>
 {
     private readonly AppDbContext _dbContext;
@@ -60,14 +61,14 @@ public class PlaceBidCommandHandler : IRequestHandler<PlaceBidCommand, ErrorOr<B
         // Find current winning bid if any
         var currentWinningBid = auction.Bids.FirstOrDefault(b => b.IsWinning);
         var currentWinner = currentWinningBid?.UserId;
-        
+
         // Hold funds in wallet before placing bid
         var holdFundsCommand = new HoldFundsForBidCommand(request.AuctionId, request.Amount);
         var holdResult = await _mediator.Send(holdFundsCommand, cancellationToken);
-        
+
         if (holdResult.IsError)
         {
-            return Error.Validation(description: "Failed to hold funds: " + string.Join(", ", 
+            return Error.Validation(description: "Failed to hold funds: " + string.Join(", ",
                 holdResult.Errors.Select(e => e.Description)));
         }
 
@@ -79,7 +80,7 @@ public class PlaceBidCommandHandler : IRequestHandler<PlaceBidCommand, ErrorOr<B
             // If bid fails, we should release the held funds
             var releaseFundsCommand = new ReleaseBidFundsCommand(request.AuctionId, _userService.UserId, request.Amount);
             await _mediator.Send(releaseFundsCommand, cancellationToken);
-            
+
             return placeBidResult.Errors;
         }
 
@@ -87,10 +88,10 @@ public class PlaceBidCommandHandler : IRequestHandler<PlaceBidCommand, ErrorOr<B
         if (currentWinner.HasValue && currentWinningBid != null)
         {
             var releaseFundsCommand = new ReleaseBidFundsCommand(
-                request.AuctionId, 
-                currentWinner.Value, 
+                request.AuctionId,
+                currentWinner.Value,
                 currentWinningBid.Amount);
-                
+
             await _mediator.Send(releaseFundsCommand, cancellationToken);
         }
 
