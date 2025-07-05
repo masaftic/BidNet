@@ -82,7 +82,7 @@ export class AuctionDetailsComponent implements OnInit {
 
     // Compare the current user ID with the auction creator ID
     const currentUser = this.authService.getUserFromStorage();
-    return currentUser?.userId.toString() === this.auction()!.createdBy;
+    return currentUser?.id.toString() === this.auction()!.createdBy;
   }
 
   deleteAuction(): void {

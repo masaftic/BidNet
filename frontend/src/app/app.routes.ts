@@ -44,6 +44,32 @@ export const routes: Routes = [
     loadComponent: () => import('./components/bids/my-bids/my-bids.component').then(m => m.MyBidsComponent),
     canActivate: [authGuard]
   },
+  // Wallet routes
+  {
+    path: 'wallet',
+    loadComponent: () => import('./components/wallet/wallet.component').then(m => m.WalletComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'wallet/deposit',
+    loadComponent: () => import('./components/wallet/deposit.component').then(m => m.DepositComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'wallet/withdraw',
+    loadComponent: () => import('./components/wallet/withdraw.component').then(m => m.WithdrawComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'wallet/transfer',
+    loadComponent: () => import('./components/wallet/transfer.component').then(m => m.TransferComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'wallet/transactions',
+    loadComponent: () => import('./components/wallet/transaction-history.component').then(m => m.TransactionHistoryComponent),
+    canActivate: [authGuard]
+  },
   {
     path: '**',
     redirectTo: 'home'

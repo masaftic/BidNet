@@ -1,0 +1,140 @@
+<div class="bg-gray-100 min-h-screen">
+  <app-navbar></app-navbar>
+
+  <div class="mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-2xl">
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-6 py-4 border-gray-200 border-b">
+        <h1 class="font-medium text-gray-900 text-lg">Withdraw Funds</h1>
+        <p class="mt-1 text-gray-500 text-sm">Transfer money from your wallet to your bank account</p>
+      </div>
+
+      <form [formGroup]="withdrawForm" (ngSubmit)="onSubmit()" class="p-6">
+        <!-- Amount -->
+        <div class="mb-6">
+          <label for="amount" class="block mb-2 font-medium text-gray-700 text-sm">
+            Withdrawal Amount
+          </label>
+          <div class="relative">
+            <span class="top-1/2 left-3 absolute text-gray-500 -translate-y-1/2 transform">$</span>
+            <input
+              id="amount"
+              type="number"
+              formControlName="amount"
+              min="1"
+              step="0.01"
+              class="block shadow-sm py-2 pr-3 pl-8 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-blue-500 w-full"
+              [class.border-red-500]="isFieldInvalid('amount')"
+              placeholder="0.00"
+            />
+          </div>
+          @if (isFieldInvalid('amount')) {
+            <p class="mt-1 text-red-600 text-sm">{{ getFieldError('amount') }}</p>
+          }
+        </div>
+
+        <!-- Withdrawal Method -->
+        <div class="mb-6">
+          <label for="withdrawalMethod" class="block mb-2 font-medium text-gray-700 text-sm">
+            Withdrawal Method
+          </label>
+          <select
+            id="withdrawalMethod"
+            formControlName="withdrawalMethod"
+            class="block shadow-sm px-3 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-blue-500 w-full"
+          >
+            @for (method of withdrawalMethods; track method.value) {
+              <option [value]="method.value">{{ method.label }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Bank Details -->
+        <div class="space-y-4 mb-6">
+          <h3 class="font-medium text-gray-900 text-lg">Bank Account Details</h3>
+
+          <!-- Account Holder Name -->
+          <div>
+            <label for="accountHolderName" class="block mb-1 font-medium text-gray-700 text-sm">
+              Account Holder Name
+            </label>
+            <input
+              id="accountHolderName"
+              type="text"
+              formControlName="accountHolderName"
+              class="block shadow-sm px-3 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-blue-500 w-full"
+              [class.border-red-500]="isFieldInvalid('accountHolderName')"
+              placeholder="John Doe"
+            />
+            @if (isFieldInvalid('accountHolderName')) {
+              <p class="mt-1 text-red-600 text-sm">{{ getFieldError('accountHolderName') }}</p>
+            }
+          </div>
+
+          <!-- Account Number -->
+          <div>
+            <label for="accountNumber" class="block mb-1 font-medium text-gray-700 text-sm">
+              Account Number
+            </label>
+            <input
+              id="accountNumber"
+              type="text"
+              formControlName="accountNumber"
+              class="block shadow-sm px-3 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-blue-500 w-full"
+              [class.border-red-500]="isFieldInvalid('accountNumber')"
+              placeholder="123456789"
+            />
+            @if (isFieldInvalid('accountNumber')) {
+              <p class="mt-1 text-red-600 text-sm">{{ getFieldError('accountNumber') }}</p>
+            }
+          </div>
+
+          <!-- Routing Number -->
+          <div>
+            <label for="routingNumber" class="block mb-1 font-medium text-gray-700 text-sm">
+              Routing Number
+            </label>
+            <input
+              id="routingNumber"
+              type="text"
+              formControlName="routingNumber"
+              class="block shadow-sm px-3 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-blue-500 w-full"
+              [class.border-red-500]="isFieldInvalid('routingNumber')"
+              placeholder="021000021"
+            />
+            @if (isFieldInvalid('routingNumber')) {
+              <p class="mt-1 text-red-600 text-sm">{{ getFieldError('routingNumber') }}</p>
+            }
+          </div>
+        </div>
+
+        <!-- Error/Success Messages -->
+        @if (errorMessage()) {
+          <div class="bg-red-50 mb-4 p-3 border border-red-200 rounded-md">
+            <p class="text-red-700 text-sm">{{ errorMessage() }}</p>
+          </div>
+        }
+
+        @if (successMessage()) {
+          <div class="bg-green-50 mb-4 p-3 border border-green-200 rounded-md">
+            <p class="text-green-700 text-sm">{{ successMessage() }}</p>
+          </div>
+        }
+
+        <!-- Submit Button -->
+        <div class="flex justify-between">
+          <app-button routerLink="/wallet" variant="outline">
+            Cancel
+          </app-button>
+          <app-button
+            type="submit"
+            [disabled]="withdrawForm.invalid || isSubmitting()"
+            [loading]="isSubmitting()"
+            variant="primary"
+          >
+            Withdraw Funds
+          </app-button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

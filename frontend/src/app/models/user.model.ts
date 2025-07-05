@@ -1,8 +1,24 @@
 export interface User {
-  userId: number;
+  id: string;
   userName: string;
   email: string;
-  roles: string[];
+  roles: string;
+  emailConfirmed: boolean;
+  phoneNumber: string;
+  phoneNumberConfirmed: boolean;
+  createdDate: string;
+  lastLoginDate: string;
+
+  // Wallet information
+  balance: number;
+  heldBalance: number;
+  currency: string;
+
+  // Activity stats
+  totalAuctions: number;
+  activeAuctions: number;
+  totalBids: number;
+  wonAuctions: number;
 }
 
 export interface AuthResponse {
